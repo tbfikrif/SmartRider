@@ -7,6 +7,8 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.media.MediaPlayer;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,12 +31,16 @@ public class MainActivity extends AppCompatActivity {
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
 
-    Button btnStartConnecting, btnGetBatteryInfo, btnGetHeartRate, btnWalkingInfo, btnStartVibrate, btnStopVibrate;
+    Button btnStartConnecting, btnStopConnecting, btnStopVibrate;
     EditText txtPhysicalAddress;
-    TextView txtState, txtByte;
+    TextView txtState, txtByte, txtProcess;
     private String mDeviceName;
     private String mDeviceAddress;
+    private int heartRateValue;
 
+    private Handler heartRateHandler;
+    private Runnable heartRateRunnable;
+    private MediaPlayer weakupAlarm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +50,9 @@ public class MainActivity extends AppCompatActivity {
         initializeObjects();
         initilaizeComponents();
         initializeEvents();
+        initializeValue();
 
         getBoundedDevice();
-
     }
 
     void getBoundedDevice() {
@@ -65,18 +71,17 @@ public class MainActivity extends AppCompatActivity {
 
     void initializeObjects() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        weakupAlarm = MediaPlayer.create(this, R.raw.fire_alarm_sound);
     }
 
     void initilaizeComponents() {
-        btnStartConnecting = (Button) findViewById(R.id.btnStartConnecting);
-        btnGetBatteryInfo = (Button) findViewById(R.id.btnGetBatteryInfo);
-        btnWalkingInfo = (Button) findViewById(R.id.btnWalkingInfo);
-        btnStartVibrate = (Button) findViewById(R.id.btnStartVibrate);
-        btnStopVibrate = (Button) findViewById(R.id.btnStopVibrate);
-        btnGetHeartRate = (Button) findViewById(R.id.btnGetHeartRate);
-        txtPhysicalAddress = (EditText) findViewById(R.id.txtPhysicalAddress);
-        txtState = (TextView) findViewById(R.id.txtState);
-        txtByte = (TextView) findViewById(R.id.txtByte);
+        btnStartConnecting = findViewById(R.id.btnStartConnecting);
+        btnStopConnecting = findViewById(R.id.btnStopConnecting);
+        btnStopVibrate = findViewById(R.id.btnStopVibrate);
+        txtPhysicalAddress = findViewById(R.id.txtPhysicalAddress);
+        txtState = findViewById(R.id.txtState);
+        txtByte = findViewById(R.id.txtByte);
+        txtProcess = findViewById(R.id.txtProcess);
     }
 
     void initializeEvents() {
@@ -84,36 +89,33 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startConnecting();
+                btnStartConnecting.setVisibility(View.GONE);
+                btnStopConnecting.setVisibility(View.VISIBLE);
             }
         });
-        btnGetBatteryInfo.setOnClickListener(new View.OnClickListener() {
+        btnStopConnecting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getBatteryStatus();
-            }
-        });
-        btnStartVibrate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startVibrate();
+                heartRateHandler.removeCallbacks(heartRateRunnable);
+                btnStartConnecting.setVisibility(View.VISIBLE);
+                btnStopConnecting.setVisibility(View.GONE);
             }
         });
         btnStopVibrate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopVibrate();
-            }
-        });
-        btnGetHeartRate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startScanHeartRate();
+                weakupAlarm.setLooping(false);
+                weakupAlarm.stop();
             }
         });
     }
 
-    void startConnecting() {
+    void initializeValue() {
+        heartRateValue = 100;
+    }
 
+    void startConnecting() {
         String address = txtPhysicalAddress.getText().toString();
         bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
 
@@ -122,20 +124,41 @@ public class MainActivity extends AppCompatActivity {
 
         bluetoothGatt = bluetoothDevice.connectGatt(this, true, bluetoothGattCallback);
 
+        heartRateHandler = new Handler();
+        heartRateHandler.postDelayed(heartRateRunnable = new Runnable() {
+            @Override
+            public void run() {
+                startScanHeartRate();
+                heartRateHandler.postDelayed(this, 20000);
+                if (heartRateValue < 60) {
+                    Toast.makeText(MainActivity.this, "Mengantuk", Toast.LENGTH_LONG).show();
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            startVibrate();
+                            weakupAlarm.setLooping(true);
+                            weakupAlarm.start();
+                        }
+                    }, 3000);
+                }
+            }
+        }, 3000);
     }
 
     void stateConnected() {
         bluetoothGatt.discoverServices();
-        txtState.setText("Connected");
+        txtState.setText("Terhubung");
     }
 
     void stateDisconnected() {
         bluetoothGatt.disconnect();
-        txtState.setText("Disconnected");
+        txtState.setText("Terputus");
     }
 
     void startScanHeartRate() {
-        txtByte.setText("...");
+        //txtByte.setText("...");
+        txtProcess.setText("Memindai");
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service)
                 .getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
         bchar.setValue(new byte[]{21, 2, 1});
@@ -150,16 +173,6 @@ public class MainActivity extends AppCompatActivity {
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         bluetoothGatt.writeDescriptor(descriptor);
         isListeningHeartRate = true;
-    }
-
-    void getBatteryStatus() {
-        txtByte.setText("...");
-        BluetoothGattCharacteristic bchar = bluetoothGatt.getService(CustomBluetoothProfile.Basic.service)
-                .getCharacteristic(CustomBluetoothProfile.Basic.batteryCharacteristic);
-        if (!bluetoothGatt.readCharacteristic(bchar)) {
-            Toast.makeText(this, "Failed get battery info", Toast.LENGTH_SHORT).show();
-        }
-
     }
 
     void startVibrate() {
@@ -208,11 +221,9 @@ public class MainActivity extends AppCompatActivity {
             Log.v("test", "onCharacteristicRead");
             byte[] data = characteristic.getValue();
             byte[] slice = Arrays.copyOfRange(data, 1,2);
-            int value = slice[0];
-            txtByte.setText(Integer.toString(value));
-            //txtByte.setText(Arrays.toString(slice));
-            //txtByte.setText(Arrays.toString(data));
-            //txtByte.setText(data[1]);
+            heartRateValue = slice[0];
+            txtByte.setText(Integer.toString(heartRateValue));
+            txtProcess.setText(" ");
         }
 
         @Override
@@ -227,11 +238,9 @@ public class MainActivity extends AppCompatActivity {
             Log.v("test", "onCharacteristicChanged");
             byte[] data = characteristic.getValue();
             byte[] slice = Arrays.copyOfRange(data, 1,2);
-            int value = slice[0];
-            txtByte.setText(Integer.toString(value));
-            //txtByte.setText(Arrays.toString(slice));
-            //txtByte.setText(Arrays.toString(data));
-            //txtByte.setText(data[1]);
+            heartRateValue = slice[0];
+            txtByte.setText(Integer.toString(heartRateValue));
+            txtProcess.setText(" ");
         }
 
         @Override
