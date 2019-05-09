@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 startScanHeartRate();
                 heartRateHandler.postDelayed(this, 20000);
-                if (heartRateValue < 60) {
+                if (heartRateValue < 80) {
                     Toast.makeText(MainActivity.this, "Mengantuk", Toast.LENGTH_LONG).show();
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {

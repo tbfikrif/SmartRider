@@ -17,13 +17,8 @@
             android:id="@+id/txtPhysicalAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Physical Address" />
-
-        <Button
-            android:id="@+id/btnStartConnecting"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Start Connecting" />
+            android:hint="Koneksi Smart Band"
+            android:visibility="gone"/>
 
     </LinearLayout>
 
@@ -43,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.1"
-                android:text="State:"
+                android:text="Status :"
                 android:textStyle="bold" />
 
             <TextView
@@ -64,47 +59,11 @@
         android:paddingTop="20dp">
 
         <Button
-            android:id="@+id/btnGetBatteryInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="Battery Info" />
-
-        <Button
-            android:id="@+id/btnGetHeartRate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="Heart Rate" />
-
-        <Button
-            android:id="@+id/btnWalkingInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="Walking Info" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingBottom="20dp"
-        android:paddingTop="20dp">
-
-        <Button
-            android:id="@+id/btnStartVibrate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="Start Vibrate" />
-
-        <Button
             android:id="@+id/btnStopVibrate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.3"
-            android:text="Stop Vibrate" />
+            android:text="Matikan Alarm" />
     </LinearLayout>
 
 
@@ -117,14 +76,60 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Byte Received:"
+            android:text="Detak Jantung :"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/txtByte"
+            android:id="@+id/txtProcess"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:scrollHorizontally="false" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/imgHeartRate"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/heart_rate"
+                android:layout_toEndOf="@+id/txtByte"
+                />
+            <TextView
+                android:id="@+id/txtByte"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:textSize="50sp"
+                android:text="80"
+                android:scrollHorizontally="false" />
+        </RelativeLayout>
+
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/btnStartConnecting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true"
+            android:text="@string/mulai_berkendara"
+            android:visibility="visible"/>
+
+        <Button
+            android:id="@+id/btnStopConnecting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true"
+            android:text="@string/berhenti_berkendara"
+            android:visibility="gone"/>
+    </RelativeLayout>
 
 </LinearLayout>

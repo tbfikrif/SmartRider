@@ -21,4 +21,6 @@
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_refresh">Refresh</string>
+    <string name="mulai_berkendara">Mulai Berkendara</string>
+    <string name="berhenti_berkendara">Berhenti Berkendara</string>
 </resources>
