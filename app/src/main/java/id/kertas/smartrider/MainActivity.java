@@ -24,7 +24,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Set;
 
 import id.kertas.smartrider.api.ApiClient;
@@ -59,7 +61,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private boolean color = false;
     private long lastUpdate;
-    String FROM_NUMBER = "", TO_NUMBER = "", MESSAGE = "";
+    private String FROM_NUMBER = "", TO_NUMBER = "", MESSAGE = "";
+    private String currentTime;
+    private SimpleDateFormat sdf;
+
+    private String name, number, link;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,13 +114,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         txtY = findViewById(R.id.txtY);
         txtZ = findViewById(R.id.txtZ);
         txtAcceleration = findViewById(R.id.txtAcceleration);
-        restHeartRate = 60;
-        FROM_NUMBER = "SmartRider";
-        TO_NUMBER = "6281931390150";
-        MESSAGE = "Pengendara Udin mengalami kecelakaan\n" +
-                "Kontak : 0819XXXXXXXX\n" +
-                "Waktu : 15:05\n" +
-                "Lokasi : https://goo.gl/maps/VSmovGkao1own9Nr5";
     }
 
     void initializeEvents() {
@@ -147,6 +146,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     void initializeValue() {
         heartRateValue = 100;
+        restHeartRate = 60;
+        sdf = new SimpleDateFormat("HH:mm");
+        currentTime = sdf.format(new Date());
+        name = "Demo";
+        number = "089650561515";
+        link = "https://goo.gl/maps/VSmovGkao1own9Nr5";
+        FROM_NUMBER = "SmartRider";
+        TO_NUMBER = "6281931390150";
+        MESSAGE = "Pengendara " + name + " mengalami kecelakaan\n" +
+                "Kontak : " + number + "\n" +
+                "Waktu : " + currentTime + "\n" +
+                "Lokasi : " + link + "\n|";
     }
 
     void startConnecting() {
