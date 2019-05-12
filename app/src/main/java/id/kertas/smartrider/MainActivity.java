@@ -7,11 +7,17 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,8 +27,15 @@ import android.widget.Toast;
 import java.util.Arrays;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity {
+import id.kertas.smartrider.api.ApiClient;
+import id.kertas.smartrider.api.ApiInterface;
+import id.kertas.smartrider.model.MessageResponse;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    private static final String TAG = MainActivity.class.getSimpleName();
     Boolean isListeningHeartRate = false;
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -33,14 +46,20 @@ public class MainActivity extends AppCompatActivity {
 
     Button btnStartConnecting, btnStopConnecting, btnStopVibrate;
     EditText txtPhysicalAddress;
-    TextView txtState, txtByte, txtProcess;
+    TextView txtState, txtByte, txtProcess, txtX, txtY, txtZ, txtAcceleration;
     private String mDeviceName;
     private String mDeviceAddress;
     private int heartRateValue;
+    private int restHeartRate;
 
     private Handler heartRateHandler;
     private Runnable heartRateRunnable;
     private MediaPlayer weakupAlarm;
+
+    private SensorManager sensorManager;
+    private boolean color = false;
+    private long lastUpdate;
+    String FROM_NUMBER = "", TO_NUMBER = "", MESSAGE = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
     void initializeObjects() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         weakupAlarm = MediaPlayer.create(this, R.raw.fire_alarm_sound);
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        lastUpdate = System.currentTimeMillis();
     }
 
     void initilaizeComponents() {
@@ -82,6 +104,17 @@ public class MainActivity extends AppCompatActivity {
         txtState = findViewById(R.id.txtState);
         txtByte = findViewById(R.id.txtByte);
         txtProcess = findViewById(R.id.txtProcess);
+        txtX = findViewById(R.id.txtX);
+        txtY = findViewById(R.id.txtY);
+        txtZ = findViewById(R.id.txtZ);
+        txtAcceleration = findViewById(R.id.txtAcceleration);
+        restHeartRate = 60;
+        FROM_NUMBER = "SmartRider";
+        TO_NUMBER = "6281931390150";
+        MESSAGE = "Pengendara Udin mengalami kecelakaan\n" +
+                "Kontak : 0819XXXXXXXX\n" +
+                "Waktu : 15:05\n" +
+                "Lokasi : https://goo.gl/maps/VSmovGkao1own9Nr5";
     }
 
     void initializeEvents() {
@@ -91,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 startConnecting();
                 btnStartConnecting.setVisibility(View.GONE);
                 btnStopConnecting.setVisibility(View.VISIBLE);
+                btnStopVibrate.setVisibility(View.VISIBLE);
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
@@ -99,14 +133,14 @@ public class MainActivity extends AppCompatActivity {
                 heartRateHandler.removeCallbacks(heartRateRunnable);
                 btnStartConnecting.setVisibility(View.VISIBLE);
                 btnStopConnecting.setVisibility(View.GONE);
+                btnStopVibrate.setVisibility(View.GONE);
             }
         });
         btnStopVibrate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopVibrate();
-                weakupAlarm.setLooping(false);
-                weakupAlarm.stop();
+                weakupAlarm.pause();
             }
         });
     }
@@ -130,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 startScanHeartRate();
                 heartRateHandler.postDelayed(this, 20000);
-                if (heartRateValue < 80) {
+                if (heartRateValue < restHeartRate) {
                     Toast.makeText(MainActivity.this, "Mengantuk", Toast.LENGTH_LONG).show();
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -274,4 +308,131 @@ public class MainActivity extends AppCompatActivity {
         }
 
     };
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            getAccelerometer(event);
+        }
+    }
+
+    private void getAccelerometer(SensorEvent event) {
+        float[] values = event.values;
+        // Movement
+        float x = values[0];
+        float y = values[1];
+        float z = values[2];
+
+        float accelationSquareRoot = (x * x + y * y + z * z)
+                / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+        long actualTime = event.timestamp;
+
+        txtX.setText(String.format("%.2f", x) + " m/s2");
+        txtY.setText(String.format("%.2f", y) + " m/s2");
+        txtZ.setText(String.format("%.2f", z) + " m/s2");
+        txtAcceleration.setText(String.format("%.4f", accelationSquareRoot) + " m/s2");
+
+        if (accelationSquareRoot >= 10) //
+        {
+            if (actualTime - lastUpdate < 200) {
+                return;
+            }
+            lastUpdate = actualTime;
+//            Toast.makeText(this, "Terguncang", Toast.LENGTH_SHORT).show();
+            if (color) {
+                txtAcceleration.setBackgroundColor(Color.RED);
+            }
+            else {
+                txtAcceleration.setBackgroundColor(Color.CYAN);
+            }
+            color = !color;
+
+            if ((x < -23.06f || x > 3.86) && (y < -4.38f || y > 10.67) && (z < -17.20f || x > 24.74)) {
+                showLongToast("Terguncang");
+                if (validateAllFields()) {
+                    makeSendSMSApiRequest(FROM_NUMBER, TO_NUMBER, MESSAGE);
+
+                } else {
+                    showShortToast("Gagal Validasi");
+                }
+            }
+        }
+    }
+
+    private void makeSendSMSApiRequest(String fromNumber, String toNumber, String message) {
+        ApiInterface sendSMSapiInterface =
+                ApiClient.getClient().create(ApiInterface.class);
+
+        Call<MessageResponse> call = sendSMSapiInterface.getMessageResponse(Config.ApiKey, Config.ApiSecret,
+                fromNumber, toNumber, message);
+        call.enqueue(new Callback<MessageResponse>() {
+            @Override
+            public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                try {
+                    Log.d(TAG, String.valueOf(response.code()));
+                    if (response.code() == 200) {
+                        Log.d(TAG, response.body().toString());
+                        Log.d(TAG, response.body().getMessages().toString());
+                        Log.d(TAG, response.body().getMessageCount());
+                        for (int i = 0; i < response.body().getMessageCount().length(); i++) {
+                            Log.d(TAG, response.body().getMessages()[i].getTo());
+                            Log.d(TAG, response.body().getMessages()[i].getMessageId());
+                            Log.d(TAG, response.body().getMessages()[i].getStatus());
+                            Log.d(TAG, response.body().getMessages()[i].getRemainingBalance());
+                            Log.d(TAG, response.body().getMessages()[i].getMessagePrice());
+                            Log.d(TAG, response.body().getMessages()[i].getNetwork());
+                        }
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, e.getLocalizedMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MessageResponse> call, Throwable t) {
+                Log.e(TAG, t.getLocalizedMessage());
+                showShortToast("Gagal Mengirim Pesan");
+            }
+        });
+    }
+
+    private boolean validateAllFields() {
+        if (!Patterns.PHONE.matcher(TO_NUMBER).matches()) {
+            showShortToast("Tolong masukan nomor yang benar");
+            return false;
+        } else if (MESSAGE.length() == 0) {
+            showShortToast("Pesan Kosong");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    public void showShortToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+    public void showLongToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
 }

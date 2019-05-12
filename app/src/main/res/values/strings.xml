@@ -23,4 +23,5 @@
     <string name="menu_refresh">Refresh</string>
     <string name="mulai_berkendara">Mulai Berkendara</string>
     <string name="berhenti_berkendara">Berhenti Berkendara</string>
+    <string name="matikan_alarm">Matikan Alarm</string>
 </resources>
