@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "893714962180",
+    "firebase_url": "https://smartrider-d1d7e.firebaseio.com",
+    "project_id": "smartrider",
+    "storage_bucket": "smartrider.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:893714962180:android:cb81e842d7231820",
+        "android_client_info": {
+          "package_name": "id.kertas.smartrider"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "893714962180-dfmu3tslkl0psu7dfvn7tu5ovm227fl6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAy35VPOxYRSZWpdGNlQh0kGHWMwxTbhNE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "893714962180-dfmu3tslkl0psu7dfvn7tu5ovm227fl6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

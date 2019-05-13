@@ -1,5 +1,6 @@
 package id.kertas.smartrider;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -7,13 +8,16 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +28,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -36,6 +45,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     Boolean isListeningHeartRate = false;
@@ -46,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
 
-    Button btnStartConnecting, btnStopConnecting, btnStopVibrate;
+    Button btnStartConnecting, btnStopConnecting, btnStopVibrate, btnDemoAlarm, btnDemoSendInformation;
     EditText txtPhysicalAddress;
     TextView txtState, txtByte, txtProcess, txtX, txtY, txtZ, txtAcceleration;
     private String mDeviceName;
@@ -67,6 +78,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private String name, number, link;
 
+    private FusedLocationProviderClient client;
+    private double latitude, longtitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         initilaizeComponents();
         initializeEvents();
         initializeValue();
+        requestPermission();
 
         getBoundedDevice();
     }
@@ -100,6 +115,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         lastUpdate = System.currentTimeMillis();
+
+        client = LocationServices.getFusedLocationProviderClient(this);
     }
 
     void initilaizeComponents() {
@@ -114,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         txtY = findViewById(R.id.txtY);
         txtZ = findViewById(R.id.txtZ);
         txtAcceleration = findViewById(R.id.txtAcceleration);
+        btnDemoAlarm = findViewById(R.id.btnDemoAlarm);
+        btnDemoSendInformation = findViewById(R.id.btnDemoSendInformation);
     }
 
     void initializeEvents() {
@@ -123,7 +142,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startConnecting();
                 btnStartConnecting.setVisibility(View.GONE);
                 btnStopConnecting.setVisibility(View.VISIBLE);
-                btnStopVibrate.setVisibility(View.VISIBLE);
+                btnDemoAlarm.setVisibility(View.VISIBLE);
+                btnDemoSendInformation.setVisibility(View.VISIBLE);
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
@@ -132,7 +152,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 heartRateHandler.removeCallbacks(heartRateRunnable);
                 btnStartConnecting.setVisibility(View.VISIBLE);
                 btnStopConnecting.setVisibility(View.GONE);
-                btnStopVibrate.setVisibility(View.GONE);
+                btnDemoAlarm.setVisibility(View.GONE);
+                btnDemoSendInformation.setVisibility(View.GONE);
             }
         });
         btnStopVibrate.setOnClickListener(new View.OnClickListener() {
@@ -140,6 +161,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 stopVibrate();
                 weakupAlarm.pause();
+                btnStopVibrate.setVisibility(View.GONE);
+            }
+        });
+        btnDemoAlarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                turnOnAlarm();
+            }
+        });
+        btnDemoSendInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendInformation();
             }
         });
     }
@@ -151,13 +185,57 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         currentTime = sdf.format(new Date());
         name = "Demo";
         number = "089650561515";
-        link = "https://goo.gl/maps/VSmovGkao1own9Nr5";
         FROM_NUMBER = "SmartRider";
         TO_NUMBER = "6281931390150";
         MESSAGE = "Pengendara " + name + " mengalami kecelakaan\n" +
                 "Kontak : " + number + "\n" +
                 "Waktu : " + currentTime + "\n" +
                 "Lokasi : " + link + "\n|";
+        getLastLocation();
+    }
+
+    private void turnOnAlarm(){
+        startVibrate();
+        weakupAlarm.setLooping(true);
+        weakupAlarm.start();
+        btnStopVibrate.setVisibility(View.VISIBLE);
+    }
+
+    private void sendInformation(){
+        currentTime = sdf.format(new Date());
+        getLastLocation();
+        MESSAGE = name + " mengalami kecelakaan\n" +
+                "Kontak : " + number + "\n" +
+                "Waktu : " + currentTime + "\n" +
+                "Lokasi : " + link + "\n|";
+        if (validateAllFields()) {
+            makeSendSMSApiRequest(FROM_NUMBER, TO_NUMBER, MESSAGE);
+        } else {
+            showShortToast("Gagal Validasi");
+        }
+    }
+
+    void getLastLocation() {
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        client.getLastLocation().addOnSuccessListener(MainActivity.this, new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    DecimalFormat df = new DecimalFormat(".####");
+                    latitude = location.getLatitude();
+                    longtitude = location.getLongitude();
+                    link = "http://www.google.com/maps/place/"+df.format(latitude)+","+df.format(longtitude);
+                    //showLongToast(link);
+                }
+            }
+        });
+    }
+
+    private void requestPermission(){
+        ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, 1);
     }
 
     void startConnecting() {
@@ -181,9 +259,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            startVibrate();
-                            weakupAlarm.setLooping(true);
-                            weakupAlarm.start();
+                            turnOnAlarm();
                         }
                     }, 3000);
                 }
@@ -349,7 +425,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 return;
             }
             lastUpdate = actualTime;
-//            Toast.makeText(this, "Terguncang", Toast.LENGTH_SHORT).show();
             if (color) {
                 txtAcceleration.setBackgroundColor(Color.RED);
             }
@@ -359,13 +434,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             color = !color;
 
             if ((x < -23.06f || x > 3.86) && (y < -4.38f || y > 10.67) && (z < -17.20f || x > 24.74)) {
-                showLongToast("Terguncang");
-                if (validateAllFields()) {
-                    makeSendSMSApiRequest(FROM_NUMBER, TO_NUMBER, MESSAGE);
-
-                } else {
-                    showShortToast("Gagal Validasi");
-                }
+                sendInformation();
             }
         }
     }
