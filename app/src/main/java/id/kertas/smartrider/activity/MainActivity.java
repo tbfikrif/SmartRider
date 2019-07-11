@@ -1,6 +1,5 @@
-package id.kertas.smartrider;
+package id.kertas.smartrider.activity;
 
-import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -38,9 +37,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 
+import id.kertas.smartrider.R;
 import id.kertas.smartrider.api.ApiClient;
 import id.kertas.smartrider.api.ApiInterface;
 import id.kertas.smartrider.model.MessageResponse;
+import id.kertas.smartrider.util.Config;
+import id.kertas.smartrider.util.CustomBluetoothProfile;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

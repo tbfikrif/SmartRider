@@ -1,4 +1,4 @@
-package id.kertas.smartrider;
+package id.kertas.smartrider.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,6 +26,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import id.kertas.smartrider.R;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
 

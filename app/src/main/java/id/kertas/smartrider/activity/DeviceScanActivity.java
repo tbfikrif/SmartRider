@@ -1,7 +1,6 @@
-package id.kertas.smartrider;
+package id.kertas.smartrider.activity;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -26,6 +25,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Set;
+
+import id.kertas.smartrider.R;
 
 public class DeviceScanActivity extends AppCompatActivity {
     private LeDeviceListAdapter mLeDeviceListAdapter;

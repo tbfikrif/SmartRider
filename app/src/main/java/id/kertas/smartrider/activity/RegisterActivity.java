@@ -1,4 +1,4 @@
-package id.kertas.smartrider;
+package id.kertas.smartrider.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -20,6 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
+import id.kertas.smartrider.R;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
 

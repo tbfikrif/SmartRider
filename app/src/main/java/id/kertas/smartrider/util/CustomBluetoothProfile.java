@@ -1,4 +1,4 @@
-package id.kertas.smartrider;
+package id.kertas.smartrider.util;
 
 import java.util.UUID;
 
