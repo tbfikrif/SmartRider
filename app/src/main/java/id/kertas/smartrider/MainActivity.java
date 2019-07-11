@@ -144,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 btnStopConnecting.setVisibility(View.VISIBLE);
                 btnDemoAlarm.setVisibility(View.VISIBLE);
                 btnDemoSendInformation.setVisibility(View.VISIBLE);
+                btnStopVibrate.setVisibility(View.VISIBLE);
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 btnStopConnecting.setVisibility(View.GONE);
                 btnDemoAlarm.setVisibility(View.GONE);
                 btnDemoSendInformation.setVisibility(View.GONE);
+                btnStopVibrate.setVisibility(View.GONE);
             }
         });
         btnStopVibrate.setOnClickListener(new View.OnClickListener() {

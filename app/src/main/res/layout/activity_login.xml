@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".LoginActivity"
-    android:background="@color/colorPrimary"
-    android:orientation="vertical">
+    android:background="@color/colorPrimary">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -19,7 +18,7 @@
             android:textColor="@android:color/white"
             android:textSize="20dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="30dp"/>
+            android:layout_marginTop="16dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,7 +36,9 @@
                 android:layout_height="50dp"
                 android:hint="Username"
                 android:textColor="@android:color/white"
-                android:id="@+id/username"/>
+                android:id="@+id/username"
+                android:inputType="text"
+                android:singleLine="true"/>
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
