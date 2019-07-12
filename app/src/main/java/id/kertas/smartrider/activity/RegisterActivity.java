@@ -317,7 +317,6 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(),
                                 jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
 
-                        stateDisconnected();
                         intent = new Intent(RegisterActivity.this, LoginActivity.class);
                         finish();
                         startActivity(intent);
@@ -383,7 +382,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        stateDisconnected();
         intent = new Intent(RegisterActivity.this, LoginActivity.class);
         finish();
         startActivity(intent);
