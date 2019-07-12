@@ -43,8 +43,13 @@ public class LoginActivity extends AppCompatActivity {
     ConnectivityManager conMgr;
 
     private String url = Server.URL + "login.php";
+    private String deviceName;
+    private String deviceAddress;
 
     private static final String TAG = LoginActivity.class.getSimpleName();
+
+    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
@@ -90,6 +95,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     void initializeComponents() {
+        deviceName = getIntent().getStringExtra(EXTRAS_DEVICE_NAME);
+        deviceAddress = getIntent().getStringExtra(EXTRAS_DEVICE_ADDRESS);
+
         btn_login = findViewById(R.id.btn_login);
         btn_daftar = findViewById(R.id.btn_txdaftar);
         txt_username = findViewById(R.id.username);
@@ -104,9 +112,11 @@ public class LoginActivity extends AppCompatActivity {
         username = sharedpreferences.getString(TAG_USERNAME, null);
 
         if (session) {
-            Intent intent = new Intent(LoginActivity.this, DeviceScanActivity.class);
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             intent.putExtra(TAG_NAMA, nama);
             intent.putExtra(TAG_USERNAME, username);
+            intent.putExtra(EXTRAS_DEVICE_NAME, deviceName);
+            intent.putExtra(EXTRAS_DEVICE_ADDRESS, deviceAddress);
             finish();
             startActivity(intent);
         }
@@ -116,6 +126,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String username = txt_username.getText().toString();
                 String password = txt_password.getText().toString();
+//                Toast.makeText(LoginActivity.this, deviceAddress, Toast.LENGTH_SHORT).show();
 
                 // mengecek kolom yang kosong
                 if (username.trim().length() > 0 && password.trim().length() > 0) {
@@ -137,6 +148,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                intent.putExtra(EXTRAS_DEVICE_NAME, deviceName);
+                intent.putExtra(EXTRAS_DEVICE_ADDRESS, deviceAddress);
                 finish();
                 startActivity(intent);
             }
@@ -177,10 +190,12 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString(TAG_USERNAME, username);
                         editor.commit();
 
-                        // Memanggil main activity
-                        Intent intent = new Intent(LoginActivity.this, DeviceScanActivity.class);
+                        // Memanggil device_scan activity
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra(TAG_NAMA, nama);
                         intent.putExtra(TAG_USERNAME, username);
+                        intent.putExtra(EXTRAS_DEVICE_NAME, deviceName);
+                        intent.putExtra(EXTRAS_DEVICE_ADDRESS, deviceAddress);
                         finish();
                         startActivity(intent);
                     } else {

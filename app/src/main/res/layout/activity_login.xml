@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:text="@string/app_name"
             android:textColor="@android:color/white"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="16dp"/>
         <TextView
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:text="Login"
             android:textColor="@android:color/white"
-            android:textSize="50dp"
+            android:textSize="50sp"
             android:layout_marginLeft="20dp"/>
         <LinearLayout
             android:layout_width="match_parent"

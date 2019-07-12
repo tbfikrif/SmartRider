@@ -6,11 +6,9 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,22 +36,12 @@ public class DeviceScanActivity extends AppCompatActivity {
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
     ListView listView;
-    TextView txt_nama;
-    FloatingActionButton btn_logout;
-
-    String nama, username;
-    SharedPreferences sharedpreferences;
-
-    public static final String TAG_NAMA = "nama";
-    public static final String TAG_USERNAME = "username";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_scan);
 
-        btn_logout = findViewById(R.id.btn_logout);
-        txt_nama = findViewById(R.id.txt_nama_tampilan);
         listView = findViewById(R.id.listView);
 
         mHandler = new Handler();
@@ -77,37 +65,12 @@ public class DeviceScanActivity extends AppCompatActivity {
             finish();
             return;
         }
-
-        sharedpreferences = getSharedPreferences(LoginActivity.my_shared_preferences, Context.MODE_PRIVATE);
-
-        nama = getIntent().getStringExtra(TAG_NAMA);
-        username = getIntent().getStringExtra(TAG_USERNAME);
-
-        txt_nama.setText(nama);
-
-        btn_logout.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                // update login session ke FALSE dan mengosongkan nilai email dan username
-                SharedPreferences.Editor editor = sharedpreferences.edit();
-                editor.putBoolean(LoginActivity.session_status, false);
-                editor.putString(TAG_NAMA, null);
-                editor.putString(TAG_USERNAME, null);
-                editor.commit();
-
-                Intent intent = new Intent(DeviceScanActivity.this, LoginActivity.class);
-                finish();
-                startActivity(intent);
-            }
-        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
+        inflater.inflate(R.menu.device_scan, menu);
         if (!mScanning) {
             menu.findItem(R.id.menu_stop).setVisible(false);
             menu.findItem(R.id.menu_scan).setVisible(true);
@@ -156,9 +119,9 @@ public class DeviceScanActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 final BluetoothDevice device = mLeDeviceListAdapter.getDevice(i);
                 if (device == null) return;
-                final Intent intent = new Intent(DeviceScanActivity.this, MainActivity.class);
-                intent.putExtra(MainActivity.EXTRAS_DEVICE_NAME, device.getName());
-                intent.putExtra(MainActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                final Intent intent = new Intent(DeviceScanActivity.this, LoginActivity.class);
+                intent.putExtra(LoginActivity.EXTRAS_DEVICE_NAME, device.getName());
+                intent.putExtra(LoginActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
                 intent.putExtra("device", device);
                 if (mScanning) {
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
@@ -269,8 +232,8 @@ public class DeviceScanActivity extends AppCompatActivity {
             if (view == null) {
                 view = mInflator.inflate(R.layout.listitem_device, null);
                 viewHolder = new ViewHolder();
-                viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
-                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+                viewHolder.deviceAddress =  view.findViewById(R.id.device_address);
+                viewHolder.deviceName =  view.findViewById(R.id.device_name);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();

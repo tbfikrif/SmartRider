@@ -7,6 +7,9 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -21,6 +24,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -83,6 +89,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private FusedLocationProviderClient client;
     private double latitude, longtitude;
 
+    String nama, username;
+    SharedPreferences sharedpreferences;
+
+    public static final String TAG_NAMA = "nama";
+    public static final String TAG_USERNAME = "username";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,18 +109,47 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         getBoundedDevice();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.option_menu, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.about) {
+            //startActivity(new Intent(this, UbahNomorTujuan.class));
+            showLongToast("Ubah Nomor Tujuan");
+        } else if (item.getItemId() == R.id.setting) {
+            //startActivity(new Intent(this, SettingActivity.class));
+            showLongToast("Pengaturan");
+        } else if (item.getItemId() == R.id.help) {
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.putBoolean(LoginActivity.session_status, false);
+            editor.putString(TAG_NAMA, null);
+            editor.putString(TAG_USERNAME, null);
+            editor.commit();
+
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            finish();
+            startActivity(intent);
+        }
+
+        return true;
+    }
+
     void getBoundedDevice() {
 
         mDeviceName = getIntent().getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = getIntent().getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        txtPhysicalAddress.setText(mDeviceAddress);
-
-        Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
-        for (BluetoothDevice bd : boundedDevice) {
-            if (bd.getName().contains("MI Band 3")) {
-                txtPhysicalAddress.setText(bd.getAddress());
-            }
-        }
+//        txtPhysicalAddress.setText(mDeviceAddress);
+//
+//        Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
+//        for (BluetoothDevice bd : boundedDevice) {
+//            if (bd.getName().contains("MI Band 3")) {
+//                txtPhysicalAddress.setText(bd.getAddress());
+//            }
+//        }
     }
 
     void initializeObjects() {
@@ -119,6 +160,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         lastUpdate = System.currentTimeMillis();
 
         client = LocationServices.getFusedLocationProviderClient(this);
+
+        sharedpreferences = getSharedPreferences(LoginActivity.my_shared_preferences, Context.MODE_PRIVATE);
+
+        nama = getIntent().getStringExtra(TAG_NAMA);
+        username = getIntent().getStringExtra(TAG_USERNAME);
     }
 
     void initilaizeComponents() {
@@ -198,14 +244,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         getLastLocation();
     }
 
-    private void turnOnAlarm(){
+    private void turnOnAlarm() {
         startVibrate();
         weakupAlarm.setLooping(true);
         weakupAlarm.start();
         btnStopVibrate.setVisibility(View.VISIBLE);
     }
 
-    private void sendInformation(){
+    private void sendInformation() {
         currentTime = sdf.format(new Date());
         getLastLocation();
         MESSAGE = name + " mengalami kecelakaan\n" +
@@ -231,22 +277,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     DecimalFormat df = new DecimalFormat(".####");
                     latitude = location.getLatitude();
                     longtitude = location.getLongitude();
-                    link = "http://www.google.com/maps/place/"+df.format(latitude)+","+df.format(longtitude);
+                    link = "http://www.google.com/maps/place/" + df.format(latitude) + "," + df.format(longtitude);
                     //showLongToast(link);
                 }
             }
         });
     }
 
-    private void requestPermission(){
+    private void requestPermission() {
         ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, 1);
     }
 
     void startConnecting() {
-        String address = txtPhysicalAddress.getText().toString();
-        bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
+        bluetoothDevice = bluetoothAdapter.getRemoteDevice(mDeviceAddress);
 
-        Log.v("test", "Connecting to " + address);
+        Log.v("test", "Connecting to " + mDeviceAddress);
         Log.v("test", "Device name " + bluetoothDevice.getName());
 
         bluetoothGatt = bluetoothDevice.connectGatt(this, true, bluetoothGattCallback);
@@ -345,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             super.onCharacteristicRead(gatt, characteristic, status);
             Log.v("test", "onCharacteristicRead");
             byte[] data = characteristic.getValue();
-            byte[] slice = Arrays.copyOfRange(data, 1,2);
+            byte[] slice = Arrays.copyOfRange(data, 1, 2);
             heartRateValue = slice[0];
             txtByte.setText(Integer.toString(heartRateValue));
             txtProcess.setText(" ");
@@ -362,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             super.onCharacteristicChanged(gatt, characteristic);
             Log.v("test", "onCharacteristicChanged");
             byte[] data = characteristic.getValue();
-            byte[] slice = Arrays.copyOfRange(data, 1,2);
+            byte[] slice = Arrays.copyOfRange(data, 1, 2);
             heartRateValue = slice[0];
             txtByte.setText(Integer.toString(heartRateValue));
             txtProcess.setText(" ");
@@ -431,8 +476,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             lastUpdate = actualTime;
             if (color) {
                 txtAcceleration.setBackgroundColor(Color.RED);
-            }
-            else {
+            } else {
                 txtAcceleration.setBackgroundColor(Color.CYAN);
             }
             color = !color;
@@ -516,6 +560,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void showShortToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
+
     public void showLongToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }

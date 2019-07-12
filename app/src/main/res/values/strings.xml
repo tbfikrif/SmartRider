@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ReadyToRide</string>
+    <string name="app_name">Lets Ride</string>
     <string name="google_maps_api_key">AIzaSyDzAwepMaplT1CV_DnKGlmP2CmAT2a3E8Q</string>
 
     <string name="ble_not_supported">BLE is not supported</string>

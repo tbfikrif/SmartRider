@@ -1,9 +1,17 @@
 package id.kertas.smartrider.activity;
 
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,15 +30,29 @@ import com.android.volley.toolbox.StringRequest;
 
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.app.AppController;
+import id.kertas.smartrider.util.CustomBluetoothProfile;
 import id.kertas.smartrider.util.Server;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
+    private static final String TAG = RegisterActivity.class.getSimpleName();
+    Boolean isListeningHeartRate = false;
+
+    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    BluetoothAdapter bluetoothAdapter;
+    BluetoothGatt bluetoothGatt;
+    BluetoothDevice bluetoothDevice;
+
+    private String mDeviceName;
+    private String mDeviceAddress;
+    private int heartRateValue;
 
     ProgressDialog pDialog;
     Button btn_hitung, btn_register;
@@ -45,8 +67,6 @@ public class RegisterActivity extends AppCompatActivity {
     ConnectivityManager conMgr;
 
     private String url = Server.URL + "register.php";
-
-    private static final String TAG = RegisterActivity.class.getSimpleName();
 
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
@@ -73,6 +93,9 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
 
+        mDeviceName = getIntent().getStringExtra(EXTRAS_DEVICE_NAME);
+        mDeviceAddress = getIntent().getStringExtra(EXTRAS_DEVICE_ADDRESS);
+
         btn_hitung = findViewById(R.id.btn_hitung_detak_jantung);
         btn_login = findViewById(R.id.btn_txtlogin);
         btn_register = findViewById(R.id.btn_register);
@@ -90,6 +113,15 @@ public class RegisterActivity extends AppCompatActivity {
         txt_detak_jantung_normal = findViewById(R.id.txt_detak_jantung_normal);
 
         dp_tgl_lahir = findViewById(R.id.dp_tgl_lahir);
+
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        btn_hitung.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startConnecting();
+            }
+        });
 
         btn_login.setOnClickListener(new View.OnClickListener() {
 
@@ -133,6 +165,131 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
+    void startConnecting() {
+        bluetoothDevice = bluetoothAdapter.getRemoteDevice(mDeviceAddress);
+
+        Log.v("test", "Connecting to " + mDeviceAddress);
+        Log.v("test", "Device name " + bluetoothDevice.getName());
+
+        bluetoothGatt = bluetoothDevice.connectGatt(this, true, bluetoothGattCallback);
+
+        Handler heartRateHandler = new Handler();
+        heartRateHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startScanHeartRate();
+            }
+        }, 1000);
+    }
+
+    void stateConnected() {
+        bluetoothGatt.discoverServices();
+        //txtState.setText("Terhubung");
+    }
+
+    void stateDisconnected() {
+        bluetoothGatt.disconnect();
+        //txtState.setText("Terputus");
+    }
+
+    void startScanHeartRate() {
+        txt_detak_jantung_normal.setText("Memindai ...");
+        BluetoothGattCharacteristic bchar = bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service)
+                .getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
+        bchar.setValue(new byte[]{21, 2, 1});
+        bluetoothGatt.writeCharacteristic(bchar);
+    }
+
+    void listenHeartRate() {
+        BluetoothGattCharacteristic bchar = bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service)
+                .getCharacteristic(CustomBluetoothProfile.HeartRate.measurementCharacteristic);
+        bluetoothGatt.setCharacteristicNotification(bchar, true);
+        BluetoothGattDescriptor descriptor = bchar.getDescriptor(CustomBluetoothProfile.HeartRate.descriptor);
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        bluetoothGatt.writeDescriptor(descriptor);
+        isListeningHeartRate = true;
+    }
+
+    final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            super.onConnectionStateChange(gatt, status, newState);
+            Log.v("test", "onConnectionStateChange");
+
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                stateConnected();
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                stateDisconnected();
+            }
+
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            super.onServicesDiscovered(gatt, status);
+            Log.v("test", "onServicesDiscovered");
+            listenHeartRate();
+        }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicRead(gatt, characteristic, status);
+            Log.v("test", "onCharacteristicRead");
+            byte[] data = characteristic.getValue();
+            byte[] slice = Arrays.copyOfRange(data, 1, 2);
+            heartRateValue = slice[0];
+            txt_detak_jantung_normal.setText(Integer.toString(heartRateValue));
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicWrite(gatt, characteristic, status);
+            Log.v("test", "onCharacteristicWrite");
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            super.onCharacteristicChanged(gatt, characteristic);
+            Log.v("test", "onCharacteristicChanged");
+            byte[] data = characteristic.getValue();
+            byte[] slice = Arrays.copyOfRange(data, 1, 2);
+            heartRateValue = slice[0];
+            txt_detak_jantung_normal.setText(Integer.toString(heartRateValue));
+        }
+
+        @Override
+        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorRead(gatt, descriptor, status);
+            Log.v("test", "onDescriptorRead");
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorWrite(gatt, descriptor, status);
+            Log.v("test", "onDescriptorWrite");
+        }
+
+        @Override
+        public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
+            super.onReliableWriteCompleted(gatt, status);
+            Log.v("test", "onReliableWriteCompleted");
+        }
+
+        @Override
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+            super.onReadRemoteRssi(gatt, rssi, status);
+            Log.v("test", "onReadRemoteRssi");
+        }
+
+        @Override
+        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+            super.onMtuChanged(gatt, mtu, status);
+            Log.v("test", "onMtuChanged");
+        }
+
+    };
+
     private void checkRegister(final String username, final String password, final String confirm_password, final String nama, final String email,
                                final String alamat, final String nomor_tlp, final String nomor_tujuan1, final String nomor_tujuan2,
                                final String nomor_tujuan3, final String detak_jantung_normal, final String tgl_lahir) {
@@ -160,6 +317,7 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(),
                                 jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
 
+                        stateDisconnected();
                         intent = new Intent(RegisterActivity.this, LoginActivity.class);
                         finish();
                         startActivity(intent);
@@ -225,6 +383,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        stateDisconnected();
         intent = new Intent(RegisterActivity.this, LoginActivity.class);
         finish();
         startActivity(intent);

@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/colorPrimary">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ScrollView
         android:id="@+id/scroll1"
@@ -21,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
-                android:textColor="@android:color/white"
+                android:textColor="@drawable/btn_txt_white_blue"
                 android:textSize="20dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="16dp"/>
@@ -29,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Daftar"
-                android:textColor="@android:color/white"
+                android:textColor="@drawable/btn_txt_white_blue"
                 android:textSize="50dp"
                 android:layout_marginLeft="20dp"/>
 
@@ -59,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:hint="Confirmation Password"
+                android:hint="Password Konfirmasi"
                 android:inputType="textPassword" />
 
             <EditText
@@ -69,7 +68,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:hint="Nama"
-                android:inputType="text"
+                android:inputType="textPersonName"
                 android:singleLine="true" />
 
             <EditText
@@ -106,7 +105,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:hint="Alamat"
-                android:inputType="text"
+                android:inputType="textMultiLine|textPostalAddress"
                 android:singleLine="true" />
 
             <EditText
@@ -116,7 +115,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:hint="Nomor Telepon"
-                android:inputType="number"
+                android:inputType="phone"
                 android:singleLine="true" />
 
             <EditText
@@ -126,7 +125,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:hint="Nomor Telepon Tujuan"
-                android:inputType="number"
+                android:inputType="phone"
                 android:singleLine="true" />
 
             <EditText
@@ -136,7 +135,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:hint="Nomor Telepon Tujuan 2 (Opsional)"
-                android:inputType="number"
+                android:inputType="phone"
                 android:singleLine="true" />
 
             <EditText
@@ -146,7 +145,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:hint="Nomor Telepon Tujuan 3 (Opsional)"
-                android:inputType="number"
+                android:inputType="phone"
                 android:singleLine="true" />
 
             <TextView
@@ -167,6 +166,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp"
                 android:layout_gravity="center_horizontal"
+                android:textAlignment="center"
                 android:text="80"
                 android:textSize="32sp" />
 
@@ -179,16 +179,16 @@
                 android:textSize="20sp"
                 android:background="@drawable/btn_red_white"
                 android:layout_gravity="center"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="30dp"/>
 
             <Button
                 android:layout_width="150dp"
                 android:layout_height="50dp"
                 android:text="Daftar"
-                android:textColor="@drawable/btn_txt_white_blue"
+                android:textColor="@drawable/btn_txt_blue_white"
                 android:id="@+id/btn_register"
                 android:textSize="20sp"
-                android:background="@drawable/btn_blue_white"
+                android:background="@drawable/btn_white_blue"
                 android:layout_gravity="center"
                 android:layout_marginBottom="10dp"/>
 
@@ -203,7 +203,7 @@
                 android:focusable="true"
                 android:drawablePadding="30dp"
                 android:text="Login"
-                android:textColor="@android:color/white"
+                android:textColor="@drawable/btn_txt_white_blue"
                 android:textSize="20dp" />
 
         </LinearLayout>
