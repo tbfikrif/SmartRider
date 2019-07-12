@@ -127,7 +127,6 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 finish();
                 startActivity(intent);

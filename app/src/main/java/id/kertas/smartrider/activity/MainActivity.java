@@ -41,7 +41,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Set;
 
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.api.ApiClient;
@@ -66,8 +65,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     BluetoothDevice bluetoothDevice;
 
     Button btnStartConnecting, btnStopConnecting, btnStopVibrate, btnDemoAlarm, btnDemoSendInformation;
-    EditText txtPhysicalAddress;
-    TextView txtState, txtByte, txtProcess, txtX, txtY, txtZ, txtAcceleration;
+    TextView txtState, txtByte, txtProcess, txtX, txtY, txtZ, txtAcceleration, txt_nama;
     private String mDeviceName;
     private String mDeviceAddress;
     private int heartRateValue;
@@ -100,8 +98,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initializeObjects();
         initilaizeComponents();
+        initializeObjects();
         initializeEvents();
         initializeValue();
         requestPermission();
@@ -142,12 +140,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         mDeviceName = getIntent().getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = getIntent().getStringExtra(EXTRAS_DEVICE_ADDRESS);
-//        txtPhysicalAddress.setText(mDeviceAddress);
+//        txt_nama.setText(mDeviceAddress);
 //
 //        Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
 //        for (BluetoothDevice bd : boundedDevice) {
 //            if (bd.getName().contains("MI Band 3")) {
-//                txtPhysicalAddress.setText(bd.getAddress());
+//                txt_nama.setText(bd.getAddress());
 //            }
 //        }
     }
@@ -165,13 +163,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         nama = getIntent().getStringExtra(TAG_NAMA);
         username = getIntent().getStringExtra(TAG_USERNAME);
+
+        txt_nama.setText(nama);
     }
 
     void initilaizeComponents() {
         btnStartConnecting = findViewById(R.id.btnStartConnecting);
         btnStopConnecting = findViewById(R.id.btnStopConnecting);
         btnStopVibrate = findViewById(R.id.btnStopVibrate);
-        txtPhysicalAddress = findViewById(R.id.txtPhysicalAddress);
+        txt_nama = findViewById(R.id.txt_nama_tampilan);
         txtState = findViewById(R.id.txtState);
         txtByte = findViewById(R.id.txtByte);
         txtProcess = findViewById(R.id.txtProcess);
@@ -211,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 stopVibrate();
                 weakupAlarm.pause();
-                btnStopVibrate.setVisibility(View.GONE);
             }
         });
         btnDemoAlarm.setOnClickListener(new View.OnClickListener() {
@@ -233,11 +232,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         restHeartRate = 60;
         sdf = new SimpleDateFormat("HH:mm");
         currentTime = sdf.format(new Date());
-        name = "Demo";
+        name = nama;
         number = "089650561515";
-        FROM_NUMBER = "SmartRider";
+        FROM_NUMBER = "LetsRide";
         TO_NUMBER = "6281931390150";
-        MESSAGE = "Pengendara " + name + " mengalami kecelakaan\n" +
+        MESSAGE = name + " mengalami kecelakaan\n" +
                 "Kontak : " + number + "\n" +
                 "Waktu : " + currentTime + "\n" +
                 "Lokasi : " + link + "\n|";
