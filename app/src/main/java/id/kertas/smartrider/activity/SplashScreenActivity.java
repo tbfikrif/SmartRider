@@ -13,7 +13,10 @@ public class SplashScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide();
+
         setContentView(R.layout.activity_splash_screen);
 
         final Handler handler = new Handler();
@@ -23,6 +26,6 @@ public class SplashScreenActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), DeviceScanActivity.class));
                 finish();
             }
-        }, 5000L);
+        }, 3000L);
     }
 }

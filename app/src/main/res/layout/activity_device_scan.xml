@@ -14,10 +14,10 @@
             android:text="Silakan Pilih SmartBand\n yang akan digunakan"
             android:textAlignment="center"
             android:textColor="@drawable/btn_txt_blue_white"
-            android:background="@drawable/btn_white_blue"
+            android:background="@color/colorPrimary"
             android:textSize="20sp"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="20dp"/>
+            android:padding="10dp"/>
 
         <ListView
             android:id="@+id/listView"
