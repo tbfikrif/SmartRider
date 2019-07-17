@@ -19,6 +19,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -70,10 +71,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String mDeviceAddress;
     private int heartRateValue;
     private int restHeartRate;
+    private int normalHeartRate;
 
     private Handler heartRateHandler;
     private Runnable heartRateRunnable;
     private MediaPlayer weakupAlarm;
+    private Vibrator vibrator;
 
     private SensorManager sensorManager;
     private boolean color = false;
@@ -213,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 stopVibrate();
                 weakupAlarm.pause();
+                vibrator.cancel();
             }
         });
         btnDemoAlarm.setOnClickListener(new View.OnClickListener() {
@@ -230,8 +234,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     void initializeValue() {
+        normalHeartRate = 80;
         heartRateValue = 100;
-        restHeartRate = 60;
+        restHeartRate = (int) (normalHeartRate - (0.2 * normalHeartRate));
         sdf = new SimpleDateFormat("HH:mm");
         currentTime = sdf.format(new Date());
         name = nama;
@@ -255,6 +260,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (alarm_sound) {
             weakupAlarm.setLooping(true);
             weakupAlarm.start();
+        }
+        if (alarm_vibrate) {
+            vibrator=(Vibrator)getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+
+            vibrator.vibrate(2000);
         }
         btnStopVibrate.setVisibility(View.VISIBLE);
     }
@@ -459,9 +469,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    public static boolean between(float i, float min, float max) {
-        return (i >= min && i <= max);
-    }
+//    public static boolean between(float i, float min, float max) {
+//        return (i >= min && i <= max);
+//    }
 
     private void getAccelerometer(SensorEvent event) {
         float[] values = event.values;
@@ -488,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             txtAcceleration.setTextColor(Color.BLUE);
         }
 
-        if (accelationSquareRoot >= 5) //
+        if (accelationSquareRoot >= 5)
         {
             if (actualTime - lastUpdate < 200) {
                 return;
@@ -583,6 +593,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (riding) {
             stopVibrate();
             weakupAlarm.pause();
+            vibrator.cancel();
 
             heartRateHandler.removeCallbacks(heartRateRunnable);
             btnStartConnecting.setVisibility(View.VISIBLE);
