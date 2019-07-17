@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.ChangeNumberActivity"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/txt_nomor_tujuan1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="Nomor Tujuan 1" />
+
+    <EditText
+        android:id="@+id/txt_nomor_tujuan2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="Nomor Tujuan 2" />
+
+    <EditText
+        android:id="@+id/txt_nomor_tujuan3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="Nomor Tujuan 3" />
+
+    <Button
+        android:id="@+id/btn_change_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_white_blue"
+        android:textColor="@drawable/btn_txt_blue_white"
+        android:layout_gravity="center"
+        android:text="Simpan"
+        android:textSize="16sp"/>
+</LinearLayout>

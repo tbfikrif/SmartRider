@@ -19,6 +19,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +30,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +54,7 @@ import retrofit2.Response;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener, SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     Boolean isListeningHeartRate = false;
 
@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private SensorManager sensorManager;
     private boolean color = false;
+    private boolean alarm_sound = true, alarm_vibrate = true, riding;
     private long lastUpdate;
     private String FROM_NUMBER = "", TO_NUMBER = "", MESSAGE = "";
     private String currentTime;
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         initializeEvents();
         initializeValue();
         requestPermission();
+        setupSharedPreferences();
 
         getBoundedDevice();
     }
@@ -116,11 +118,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.about) {
-            //startActivity(new Intent(this, UbahNomorTujuan.class));
-            showLongToast("Ubah Nomor Tujuan");
+            startActivity(new Intent(this, ChangeNumberActivity.class));
         } else if (item.getItemId() == R.id.setting) {
-            //startActivity(new Intent(this, SettingActivity.class));
-            showLongToast("Pengaturan");
+            startActivity(new Intent(this, SettingsActivity.class));
         } else if (item.getItemId() == R.id.help) {
             SharedPreferences.Editor editor = sharedpreferences.edit();
             editor.putBoolean(LoginActivity.session_status, false);
@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 btnDemoAlarm.setVisibility(View.VISIBLE);
                 btnDemoSendInformation.setVisibility(View.VISIBLE);
                 btnStopVibrate.setVisibility(View.VISIBLE);
+                riding = true;
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
@@ -204,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 btnDemoAlarm.setVisibility(View.GONE);
                 btnDemoSendInformation.setVisibility(View.GONE);
                 btnStopVibrate.setVisibility(View.GONE);
+                riding = false;
             }
         });
         btnStopVibrate.setOnClickListener(new View.OnClickListener() {
@@ -243,10 +245,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         getLastLocation();
     }
 
+    private void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
     private void turnOnAlarm() {
         startVibrate();
-        weakupAlarm.setLooping(true);
-        weakupAlarm.start();
+        if (alarm_sound) {
+            weakupAlarm.setLooping(true);
+            weakupAlarm.start();
+        }
         btnStopVibrate.setVisibility(View.VISIBLE);
     }
 
@@ -277,7 +286,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     latitude = location.getLatitude();
                     longtitude = location.getLongitude();
                     link = "http://www.google.com/maps/place/" + df.format(latitude) + "," + df.format(longtitude);
-                    //showLongToast(link);
                 }
             }
         });
@@ -451,6 +459,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    public static boolean between(float i, float min, float max) {
+        return (i >= min && i <= max);
+    }
+
     private void getAccelerometer(SensorEvent event) {
         float[] values = event.values;
         // Movement
@@ -465,22 +477,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         txtX.setText(String.format("%.2f", x) + " m/s2");
         txtY.setText(String.format("%.2f", y) + " m/s2");
         txtZ.setText(String.format("%.2f", z) + " m/s2");
-        txtAcceleration.setText(String.format("%.4f", accelationSquareRoot) + " m/s2");
+        //txtAcceleration.setText(String.format("%.4f", accelationSquareRoot) + " m/s2");
 
-        if (accelationSquareRoot >= 10) //
+        if (x > 8.0f){
+            txtAcceleration.setText("Miring Kiri");
+        } else if (x <-8.0f) {
+            txtAcceleration.setText("Miring Kanan");
+        } else {
+            txtAcceleration.setText("Normal");
+            txtAcceleration.setTextColor(Color.BLUE);
+        }
+
+        if (accelationSquareRoot >= 5) //
         {
             if (actualTime - lastUpdate < 200) {
                 return;
             }
             lastUpdate = actualTime;
-            if (color) {
-                txtAcceleration.setBackgroundColor(Color.RED);
-            } else {
-                txtAcceleration.setBackgroundColor(Color.CYAN);
-            }
-            color = !color;
 
-            if ((x < -23.06f || x > 3.86) && (y < -4.38f || y > 10.67) && (z < -17.20f || x > 24.74)) {
+            if (x > 8.0f){
+                txtAcceleration.setText("Miring Kiri");
+                txtAcceleration.setTextColor(Color.RED);
+                sendInformation();
+            } else if (x <-8.0f) {
+                txtAcceleration.setText("Miring Kanan");
+                txtAcceleration.setTextColor(Color.RED);
                 sendInformation();
             }
         }
@@ -556,11 +577,39 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.unregisterListener(this);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (riding) {
+            stopVibrate();
+            weakupAlarm.pause();
+
+            heartRateHandler.removeCallbacks(heartRateRunnable);
+            btnStartConnecting.setVisibility(View.VISIBLE);
+            btnStopConnecting.setVisibility(View.GONE);
+            btnDemoAlarm.setVisibility(View.GONE);
+            btnDemoSendInformation.setVisibility(View.GONE);
+            btnStopVibrate.setVisibility(View.GONE);
+            riding = false;
+        }
+    }
+
     public void showShortToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     public void showLongToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals("alarm_sound")) {
+            //setTextVisible(sharedPreferences.getBoolean("display_text",true));
+            alarm_sound = sharedPreferences.getBoolean("alarm_sound", true);
+        }
+        if (key.equals("alarm_vibrate")) {
+            alarm_vibrate = sharedPreferences.getBoolean("alarm_vibrate", true);
+        }
     }
 }

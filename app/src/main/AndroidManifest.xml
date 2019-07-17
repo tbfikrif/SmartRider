@@ -35,12 +35,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.DeviceScanActivity"/>
-        <activity android:name=".activity.LoginActivity"
-            android:parentActivityName=".activity.DeviceScanActivity"/>
-        <activity android:name=".activity.RegisterActivity"
-            android:parentActivityName=".activity.LoginActivity"/>
-        <activity android:name=".activity.MainActivity" />
+        <activity android:name=".activity.DeviceScanActivity" />
+        <activity
+            android:name=".activity.LoginActivity"
+            android:parentActivityName=".activity.DeviceScanActivity" />
+        <activity
+            android:name=".activity.RegisterActivity"
+            android:parentActivityName=".activity.LoginActivity" />
+        <activity android:name=".activity.MainActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".activity.ChangeNumberActivity"
+            android:label="Ubah Nomor Tujuan"
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity"/>
+        </activity>
+        <activity android:name=".activity.SettingsActivity"
+            android:label="Pengaturan"
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity"/>
+        </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

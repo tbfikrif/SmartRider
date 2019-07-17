@@ -6,4 +6,6 @@
     <color name="colorPrimaryText">#ffffff</color>
     <color name="colorAccent">#455a64</color>
     <color name="colorRed">#d50000</color>
+    <color name="colorGreen">#00c853</color>
+    <color name="colorBlue">#2962ff</color>
 </resources>

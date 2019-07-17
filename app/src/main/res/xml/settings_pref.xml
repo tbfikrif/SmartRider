@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Suara dan Getar">
+        <SwitchPreference
+            android:icon="@drawable/ic_volume"
+            android:defaultValue="true"
+            android:key="alarm_sound"
+            android:summaryOn="Berdering"
+            android:summaryOff="Tidak Berdering"
+            android:title="Suara Alarm"/>
+
+        <SwitchPreference
+            android:icon="@drawable/ic_vibration"
+            android:defaultValue="true"
+            android:key="alarm_vibrate"
+            android:summaryOn="Bergetar"
+            android:summaryOff="Tidak Bergetar"
+            android:title="Getar Alarm"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Tentang">
+        <Preference
+            android:title="Aplikasi"
+            android:icon="@drawable/ic_phone"
+            android:summary="Keselamatan Berkendara (LetsRide)"/>
+        <Preference
+            android:title="Pengembang"
+            android:icon="@drawable/ic_person"
+            android:summary="PEMBIMBING SKRIPSI\n- Eko Budi Setiawan, S.Kom., M.T.\n\nPENGUJI SKRIPSI\n- Dian Dharmayanti, S.T., M.Kom.\n\nPEMBUAT\n- 10115387 Tubagus Fikri Fatoni"/>
+    </PreferenceCategory>
+</PreferenceScreen>
