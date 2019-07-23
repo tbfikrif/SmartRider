@@ -46,6 +46,8 @@ import java.util.Date;
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.api.ApiClient;
 import id.kertas.smartrider.api.ApiInterface;
+import id.kertas.smartrider.api.ApiKecelakaan;
+import id.kertas.smartrider.api.ApiMengantuk;
 import id.kertas.smartrider.model.MessageResponse;
 import id.kertas.smartrider.util.Config;
 import id.kertas.smartrider.util.CustomBluetoothProfile;
@@ -97,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static final String TAG_NAMA = "nama";
     public static final String TAG_USERNAME = "username";
 
+    private ApiKecelakaan apiKecelakaan;
+    private ApiMengantuk apiMengantuk;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,17 +145,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     void getBoundedDevice() {
-
         mDeviceName = getIntent().getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = getIntent().getStringExtra(EXTRAS_DEVICE_ADDRESS);
-//        txt_nama.setText(mDeviceAddress);
-//
-//        Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
-//        for (BluetoothDevice bd : boundedDevice) {
-//            if (bd.getName().contains("MI Band 3")) {
-//                txt_nama.setText(bd.getAddress());
-//            }
-//        }
     }
 
     void initializeObjects() {
@@ -168,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         username = getIntent().getStringExtra(TAG_USERNAME);
 
         txt_nama.setText(nama);
+
+        apiMengantuk.getMengantuk(this,TAG,username);
     }
 
     void initilaizeComponents() {
@@ -184,6 +182,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         txtAcceleration = findViewById(R.id.txtAcceleration);
         btnDemoAlarm = findViewById(R.id.btnDemoAlarm);
         btnDemoSendInformation = findViewById(R.id.btnDemoSendInformation);
+
+        apiMengantuk = new ApiMengantuk();
+        apiKecelakaan = new ApiKecelakaan();
     }
 
     void initializeEvents() {
@@ -197,6 +198,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 btnDemoSendInformation.setVisibility(View.VISIBLE);
                 btnStopVibrate.setVisibility(View.VISIBLE);
                 riding = true;
+
+                apiMengantuk.getMengantuk(MainActivity.this,TAG,username);
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
@@ -234,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     void initializeValue() {
-        normalHeartRate = 80;
+        normalHeartRate = apiMengantuk.detak_jantung_normal;
         heartRateValue = 100;
         restHeartRate = (int) (normalHeartRate - (0.2 * normalHeartRate));
         sdf = new SimpleDateFormat("HH:mm");
@@ -267,6 +270,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             vibrator.vibrate(2000);
         }
         btnStopVibrate.setVisibility(View.VISIBLE);
+
+        int jumlah_kantuk = apiMengantuk.jumlah_kantuk + 1;
+        apiMengantuk.setMengantuk(this,TAG,username, jumlah_kantuk);
     }
 
     private void sendInformation() {
@@ -281,6 +287,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             showShortToast("Gagal Validasi");
         }
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentDateTime = sdf.format(new Date());
+        apiKecelakaan.setKecelakaan(this,TAG,username,longtitude,latitude,link,currentDateTime);
     }
 
     void getLastLocation() {
@@ -319,8 +329,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void run() {
                 startScanHeartRate();
                 heartRateHandler.postDelayed(this, 20000);
-                if (heartRateValue < restHeartRate) {
-                    Toast.makeText(MainActivity.this, "Mengantuk", Toast.LENGTH_LONG).show();
+                if (heartRateValue <= restHeartRate) {
+                    showShortToast("Mengantuk");
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override

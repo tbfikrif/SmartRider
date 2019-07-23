@@ -239,6 +239,9 @@ public class RegisterActivity extends AppCompatActivity {
             byte[] slice = Arrays.copyOfRange(data, 1, 2);
             heartRateValue = slice[0];
             txt_detak_jantung_normal.setText(Integer.toString(heartRateValue));
+            while (heartRateValue < 60) {
+                startConnecting();
+            }
         }
 
         @Override
@@ -255,6 +258,9 @@ public class RegisterActivity extends AppCompatActivity {
             byte[] slice = Arrays.copyOfRange(data, 1, 2);
             heartRateValue = slice[0];
             txt_detak_jantung_normal.setText(Integer.toString(heartRateValue));
+            while (heartRateValue < 60) {
+                startConnecting();
+            }
         }
 
         @Override
