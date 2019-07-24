@@ -35,7 +35,7 @@ public class ApiMengantuk {
     public void getMengantuk(final Context context, final String TAG, final String username) {
         pDialog = new ProgressDialog(context);
         pDialog.setCancelable(false);
-        pDialog.setMessage("Logging in ...");
+        pDialog.setMessage("Getting ...");
         showDialog();
 
         String url = Server.URL + "getmengantuk.php";

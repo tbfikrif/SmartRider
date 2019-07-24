@@ -48,6 +48,8 @@ import id.kertas.smartrider.api.ApiClient;
 import id.kertas.smartrider.api.ApiInterface;
 import id.kertas.smartrider.api.ApiKecelakaan;
 import id.kertas.smartrider.api.ApiMengantuk;
+import id.kertas.smartrider.api.ApiNomorTujuan;
+import id.kertas.smartrider.api.ApiSMSGateway;
 import id.kertas.smartrider.model.MessageResponse;
 import id.kertas.smartrider.util.Config;
 import id.kertas.smartrider.util.CustomBluetoothProfile;
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     BluetoothDevice bluetoothDevice;
 
     Button btnStartConnecting, btnStopConnecting, btnStopVibrate, btnDemoAlarm, btnDemoSendInformation;
-    TextView txtState, txtByte, txtProcess, txtX, txtY, txtZ, txtAcceleration, txt_nama;
+    TextView txtState, txtHeartValue, txtProcess, txtX, txtY, txtZ, txtAcceleration, txt_nama;
     private String mDeviceName;
     private String mDeviceAddress;
     private int heartRateValue;
@@ -99,8 +101,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static final String TAG_NAMA = "nama";
     public static final String TAG_USERNAME = "username";
 
+    private ApiNomorTujuan apiNomorTujuan;
     private ApiKecelakaan apiKecelakaan;
     private ApiMengantuk apiMengantuk;
+    private ApiSMSGateway apiSMSGateway;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         username = getIntent().getStringExtra(TAG_USERNAME);
 
         txt_nama.setText(nama);
+        //txtHeartValue.setText(apiMengantuk.detak_jantung_normal);
 
         apiMengantuk.getMengantuk(this,TAG,username);
     }
@@ -174,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         btnStopVibrate = findViewById(R.id.btnStopVibrate);
         txt_nama = findViewById(R.id.txt_nama_tampilan);
         txtState = findViewById(R.id.txtState);
-        txtByte = findViewById(R.id.txtByte);
+        txtHeartValue = findViewById(R.id.txtByte);
         txtProcess = findViewById(R.id.txtProcess);
         txtX = findViewById(R.id.txtX);
         txtY = findViewById(R.id.txtY);
@@ -183,8 +188,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         btnDemoAlarm = findViewById(R.id.btnDemoAlarm);
         btnDemoSendInformation = findViewById(R.id.btnDemoSendInformation);
 
+        apiNomorTujuan = new ApiNomorTujuan();
         apiMengantuk = new ApiMengantuk();
         apiKecelakaan = new ApiKecelakaan();
+        apiSMSGateway = new ApiSMSGateway();
     }
 
     void initializeEvents() {
@@ -194,12 +201,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startConnecting();
                 btnStartConnecting.setVisibility(View.GONE);
                 btnStopConnecting.setVisibility(View.VISIBLE);
-                btnDemoAlarm.setVisibility(View.VISIBLE);
-                btnDemoSendInformation.setVisibility(View.VISIBLE);
+//                btnDemoAlarm.setVisibility(View.VISIBLE);
+//                btnDemoSendInformation.setVisibility(View.VISIBLE);
                 btnStopVibrate.setVisibility(View.VISIBLE);
                 riding = true;
 
-                apiMengantuk.getMengantuk(MainActivity.this,TAG,username);
+                apiMengantuk.getMengantuk(MainActivity.this, TAG, username);
+                apiNomorTujuan.getNomorTujuan(MainActivity.this, TAG, username);
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
@@ -281,12 +289,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         MESSAGE = name + " mengalami kecelakaan\n" +
                 "Kontak : " + number + "\n" +
                 "Waktu : " + currentTime + "\n" +
-                "Lokasi : " + link + "\n|";
-        if (validateAllFields()) {
-            makeSendSMSApiRequest(FROM_NUMBER, TO_NUMBER, MESSAGE);
-        } else {
-            showShortToast("Gagal Validasi");
-        }
+                "Lokasi : " + link;
+
+        //Nexmo
+//        if (validateAllFields()) {
+//            makeSendSMSApiRequest(FROM_NUMBER, TO_NUMBER, MESSAGE);
+//        } else {
+//            showShortToast("Gagal Validasi");
+//        }
+
+        //MedanSMS
+        String nomor_tujuan = apiNomorTujuan.nomor_tujuan1
+                + "," + apiNomorTujuan.nomor_tujuan2
+                + "," + apiNomorTujuan.nomor_tujuan3;
+        apiSMSGateway.sendSMS(MainActivity.this, TAG, "kirim_sms", "tbfikrif@gmail.com", "Hm123123", nomor_tujuan, MESSAGE);
 
         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentDateTime = sdf.format(new Date());
@@ -354,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     void startScanHeartRate() {
-        //txtByte.setText("...");
+        //txtHeartValue.setText("...");
         txtProcess.setText("Memindai");
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service)
                 .getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
@@ -419,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             byte[] data = characteristic.getValue();
             byte[] slice = Arrays.copyOfRange(data, 1, 2);
             heartRateValue = slice[0];
-            txtByte.setText(Integer.toString(heartRateValue));
+            txtHeartValue.setText(Integer.toString(heartRateValue));
             txtProcess.setText(" ");
         }
 
@@ -436,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             byte[] data = characteristic.getValue();
             byte[] slice = Arrays.copyOfRange(data, 1, 2);
             heartRateValue = slice[0];
-            txtByte.setText(Integer.toString(heartRateValue));
+            txtHeartValue.setText(Integer.toString(heartRateValue));
             txtProcess.setText(" ");
         }
 

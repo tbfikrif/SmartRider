@@ -50,7 +50,8 @@ public class ChangeNumberActivity extends AppCompatActivity {
 
     SharedPreferences sharedpreferences;
     Boolean session = false;
-    String username, nomor_tujuan1, nomor_tujuan2, nomor_tujuan3;
+    private String username;
+    public String nomor_tujuan1, nomor_tujuan2, nomor_tujuan3;
     public static final String my_shared_preferences = "my_shared_preferences";
     public static final String session_status = "session_status";
 
@@ -92,7 +93,7 @@ public class ChangeNumberActivity extends AppCompatActivity {
         });
     }
 
-    private void getNomorTujuan(final String username) {
+    public void getNomorTujuan(final String username) {
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
         pDialog.setMessage("Logging in ...");

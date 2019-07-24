@@ -17,10 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import id.kertas.smartrider.app.AppController;
-import id.kertas.smartrider.util.Server;
 
-public class ApiKecelakaan {
-
+public class ApiSMSGateway {
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
@@ -30,14 +28,14 @@ public class ApiKecelakaan {
 
     private int success;
 
-    public void setKecelakaan(final Context context, final String TAG, final String username, final double longitude,
-                               final double latitude, final String link_maps, final String waktu_kecelakaan) {
+    public void sendSMS(final Context context, final String TAG, final String action, final String email,
+                        final String passkey, final String no_tujuan, final String pesan) {
         pDialog = new ProgressDialog(context);
         pDialog.setCancelable(false);
-        pDialog.setMessage("Detecting ...");
+        pDialog.setMessage("Mengirim Pesan ...");
         showDialog();
 
-        String url = Server.URL + "setkecelakaan.php";
+        String url = "https://reguler.medansms.co.id/sms_api.php";
         StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
 
             @Override
@@ -49,45 +47,42 @@ public class ApiKecelakaan {
                     JSONObject jObj = new JSONObject(response);
                     success = jObj.getInt(TAG_SUCCESS);
 
+                    Log.d("test", jObj.toString());
+                    Toast.makeText(context, "Berhasil Terkirim", Toast.LENGTH_SHORT).show();
+
                     if (success == 1) {
-                        Log.d("Successfully Record!", jObj.toString());
-
-                        Toast.makeText(context, jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
-
+                        Toast.makeText(context, "Berhasil Mengirim Pesan", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(context, jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
-
+                        Toast.makeText(context, "Gagal Mengirim Pesan", Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
+                    Log.d("test", e.getMessage());
                 }
 
             }
         }, new Response.ErrorListener() {
-
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Error: " + error.getMessage());
                 Toast.makeText(context, error.getMessage(), Toast.LENGTH_LONG).show();
 
                 hideDialog();
-
             }
         }) {
-
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-                params.put("longitude", String.valueOf(longitude));
-                params.put("latitude", String.valueOf(latitude));
-                params.put("link_maps", link_maps);
-                params.put("waktu_kecelakaan", waktu_kecelakaan);
+                params.put("action", action);
+                params.put("email", email);
+                params.put("passkey", passkey);
+                params.put("no_tujuan", no_tujuan);
+                params.put("pesan", pesan);
+                params.put("json", "1");
 
                 return params;
             }
-
         };
 
         // Adding request to request queue
