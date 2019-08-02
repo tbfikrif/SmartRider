@@ -151,6 +151,9 @@ public class RegisterActivity extends AppCompatActivity {
                 String detak_jantung_normal = txt_detak_jantung_normal.getText().toString();
                 String tgl_lahir = dp_tgl_lahir.getYear() + "-" + dp_tgl_lahir.getDayOfMonth() + "-" + dp_tgl_lahir.getMonth();
 
+                if (detak_jantung_normal.contains("Memindai"))
+                    detak_jantung_normal = "80";
+
                 if (conMgr.getActiveNetworkInfo() != null
                         && conMgr.getActiveNetworkInfo().isAvailable()
                         && conMgr.getActiveNetworkInfo().isConnected()) {

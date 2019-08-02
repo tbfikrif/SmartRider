@@ -49,6 +49,7 @@ import id.kertas.smartrider.api.ApiInterface;
 import id.kertas.smartrider.api.ApiKecelakaan;
 import id.kertas.smartrider.api.ApiMengantuk;
 import id.kertas.smartrider.api.ApiNomorTujuan;
+import id.kertas.smartrider.api.ApiPengguna;
 import id.kertas.smartrider.api.ApiSMSGateway;
 import id.kertas.smartrider.model.MessageResponse;
 import id.kertas.smartrider.util.Config;
@@ -105,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ApiKecelakaan apiKecelakaan;
     private ApiMengantuk apiMengantuk;
     private ApiSMSGateway apiSMSGateway;
+    private ApiPengguna apiPengguna;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         apiMengantuk = new ApiMengantuk();
         apiKecelakaan = new ApiKecelakaan();
         apiSMSGateway = new ApiSMSGateway();
+        apiPengguna = new ApiPengguna();
     }
 
     void initializeEvents() {
@@ -208,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 apiMengantuk.getMengantuk(MainActivity.this, TAG, username);
                 apiNomorTujuan.getNomorTujuan(MainActivity.this, TAG, username);
+                apiPengguna.getPengguna(MainActivity.this, TAG, username);
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
@@ -287,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         currentTime = sdf.format(new Date());
         getLastLocation();
         MESSAGE = name + " mengalami kecelakaan\n" +
-                "Kontak : " + number + "\n" +
+                "Kontak : " + apiPengguna.nomor_tlp + "\n" +
                 "Waktu : " + currentTime + "\n" +
                 "Lokasi : " + link;
 
@@ -524,7 +528,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             txtAcceleration.setTextColor(Color.BLUE);
         }
 
-        if (accelationSquareRoot >= 5)
+        if (accelationSquareRoot >= 3)
         {
             if (actualTime - lastUpdate < 200) {
                 return;

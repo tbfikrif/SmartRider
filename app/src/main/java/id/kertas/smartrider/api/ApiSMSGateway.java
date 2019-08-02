@@ -73,7 +73,7 @@ public class ApiSMSGateway {
         }) {
             @Override
             protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 params.put("action", action);
                 params.put("email", email);
                 params.put("passkey", passkey);

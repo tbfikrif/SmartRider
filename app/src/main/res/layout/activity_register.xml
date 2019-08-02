@@ -61,6 +61,38 @@
                 android:hint="Password Konfirmasi"
                 android:inputType="textPassword" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_gravity="center_horizontal"
+                android:text="Detak Jantung"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/txt_detak_jantung_normal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center_horizontal"
+                android:textAlignment="center"
+                android:text="80"
+                android:textSize="32sp" />
+
+            <Button
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:text="Hitung"
+                android:textColor="@drawable/btn_txt_red_white"
+                android:id="@+id/btn_hitung_detak_jantung"
+                android:textSize="20sp"
+                android:background="@drawable/btn_red_white"
+                android:layout_gravity="center"/>
+
             <EditText
                 android:id="@+id/txt_nama"
                 android:layout_width="match_parent"
@@ -146,40 +178,7 @@
                 android:layout_margin="10dp"
                 android:hint="Nomor Telepon Tujuan 3 (Opsional)"
                 android:inputType="phone"
-                android:singleLine="true" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_gravity="center_horizontal"
-                android:text="Detak Jantung"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/txt_detak_jantung_normal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_gravity="center_horizontal"
-                android:textAlignment="center"
-                android:text="80"
-                android:textSize="32sp" />
-
-            <Button
-                android:layout_width="150dp"
-                android:layout_height="50dp"
-                android:text="Hitung"
-                android:textColor="@drawable/btn_txt_red_white"
-                android:id="@+id/btn_hitung_detak_jantung"
-                android:textSize="20sp"
-                android:background="@drawable/btn_red_white"
-                android:layout_gravity="center"
-                android:layout_marginBottom="30dp"/>
+                android:singleLine="true"/>
 
             <Button
                 android:layout_width="150dp"
@@ -190,6 +189,7 @@
                 android:textSize="20sp"
                 android:background="@drawable/btn_white_blue"
                 android:layout_gravity="center"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"/>
 
             <TextView
