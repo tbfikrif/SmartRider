@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <font android:fontStyle="normal"
+        android:font="@font/antoneegular"
+        android:fontWeight="400"/>
+
+    <font android:fontStyle="normal"
+        android:font="@font/breeserifeegular"
+        android:fontWeight="400"/>
+
+    <font android:fontStyle="normal"
+        android:font="@font/righteousregular"
+        android:fontWeight="400"/>
+
+    <font android:fontStyle="normal"
+        android:font="@font/fugazoneregular"
+        android:fontWeight="400"/>
+
+</font-family>

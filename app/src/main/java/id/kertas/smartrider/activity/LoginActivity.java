@@ -33,7 +33,7 @@ import id.kertas.smartrider.util.Server;
 public class LoginActivity extends AppCompatActivity {
 
     private Button btn_login;
-    private TextView btn_daftar;
+    private Button btn_daftar;
 
     private ProgressDialog pDialog;
     private EditText txt_username, txt_password;
@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
         deviceAddress = getIntent().getStringExtra(EXTRAS_DEVICE_ADDRESS);
 
         btn_login = findViewById(R.id.btn_login);
-        btn_daftar = findViewById(R.id.btn_txdaftar);
+        btn_daftar = findViewById(R.id.btndftr);
         txt_username = findViewById(R.id.username);
         txt_password = findViewById(R.id.password);
     }

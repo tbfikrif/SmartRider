@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,34 +8,114 @@
     tools:context=".activity.ChangeNumberActivity"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/txt_nomor_tujuan1"
+    <RelativeLayout
+        android:background="#3498db"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:hint="Nomor Tujuan 1" />
+        android:layout_height="290dp"></RelativeLayout>
 
-    <EditText
-        android:id="@+id/txt_nomor_tujuan2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:hint="Nomor Tujuan 2" />
 
-    <EditText
-        android:id="@+id/txt_nomor_tujuan3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:hint="Nomor Tujuan 3" />
 
-    <Button
-        android:id="@+id/btn_change_number"
+    <ImageView android:background="@drawable/ic_smartphone"
+        android:layout_width="100dp"
+        android:id="@+id/phoneimg"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"
+        android:layout_height="100dp" />
+
+    <TextView android:text="Ubah Nomor Handphone\n Kamu Cin"
+        android:textAlignment="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_white_blue"
-        android:textColor="@drawable/btn_txt_blue_white"
-        android:layout_gravity="center"
-        android:text="Simpan"
-        android:textSize="16sp"/>
-</LinearLayout>
+        android:fontFamily="@font/righteousregular"
+        android:layout_below="@+id/phoneimg"
+        android:textSize="15dp"
+        android:textColor="#fff"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content" />
+
+    <TextView android:text="Gunakan No Handphone Yang Valid, Agar \nInformasi Sampai Dengan Benar"
+        android:layout_marginBottom="80dp"
+        android:layout_alignParentBottom="true"
+        android:textAlignment="center"
+        android:layout_width="wrap_content"
+        android:fontFamily="@font/righteousregular"
+        android:textSize="15dp"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content" />
+
+
+    <android.support.v7.widget.CardView
+        android:layout_marginTop="70dp"
+        app:cardElevation="5dp"
+        android:layout_centerInParent="true"
+        app:cardCornerRadius="15dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <EditText
+            android:drawableLeft="@drawable/ic_phone_black_24dp"
+            android:id="@+id/txt_nomor_tujuan1"
+            android:fontFamily="@font/righteousregular"
+            android:textColor="#000"
+            android:drawablePadding="10dp"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_height="wrap_content"
+            android:hint="Nomor Tujuan 1" />
+
+        <EditText
+            android:layout_below="@id/txt_nomor_tujuan1"
+            android:id="@+id/txt_nomor_tujuan2"
+            android:drawableLeft="@drawable/ic_phone_black_24dp"
+            android:layout_width="match_parent"
+            android:fontFamily="@font/righteousregular"
+            android:textColor="#000"
+            android:drawablePadding="10dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:hint="Nomor Tujuan 2" />
+
+        <EditText
+            android:layout_below="@+id/txt_nomor_tujuan2"
+            android:id="@+id/txt_nomor_tujuan3"
+            android:layout_width="match_parent"
+            android:fontFamily="@font/righteousregular"
+            android:textColor="#000"
+            android:drawablePadding="10dp"
+            android:drawableLeft="@drawable/ic_phone_black_24dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:hint="Nomor Tujuan 3" />
+
+        <Button
+            android:layout_below="@+id/txt_nomor_tujuan3"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/btn_change_number"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="80dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/breeserifeegular"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_white_blue"
+            android:textColor="@drawable/btn_txt_blue_white"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:text="Simpan"
+            android:textSize="14dp"/>
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+
+</RelativeLayout>
