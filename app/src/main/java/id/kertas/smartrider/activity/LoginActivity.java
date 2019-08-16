@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -126,7 +127,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String username = txt_username.getText().toString();
                 String password = txt_password.getText().toString();
-//                Toast.makeText(LoginActivity.this, deviceAddress, Toast.LENGTH_SHORT).show();
 
                 // mengecek kolom yang kosong
                 if (username.trim().length() > 0 && password.trim().length() > 0) {
@@ -137,9 +137,16 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(getApplicationContext() ,"No Internet Connection", Toast.LENGTH_LONG).show();
                     }
-                } else {
-                    // Prompt user to enter credentials
-                    Toast.makeText(getApplicationContext() ,"Kolom tidak boleh kosong", Toast.LENGTH_LONG).show();
+                } else if (!(username.trim().length() > 0)){
+                    Toast.makeText(getApplicationContext() ,"Username tidak boleh kosong", Toast.LENGTH_LONG).show();
+                    txt_username.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_username, InputMethodManager.SHOW_IMPLICIT);
+                } else if (!(password.trim().length() > 0)){
+                    Toast.makeText(getApplicationContext() ,"Password tidak boleh kosong", Toast.LENGTH_LONG).show();
+                    txt_password.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_password, InputMethodManager.SHOW_IMPLICIT);
                 }
             }
         });
@@ -150,7 +157,6 @@ public class LoginActivity extends AppCompatActivity {
                 intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 intent.putExtra(EXTRAS_DEVICE_NAME, deviceName);
                 intent.putExtra(EXTRAS_DEVICE_ADDRESS, deviceAddress);
-                finish();
                 startActivity(intent);
             }
         });

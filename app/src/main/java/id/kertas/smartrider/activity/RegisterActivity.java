@@ -10,13 +10,16 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -43,9 +46,8 @@ import java.util.Map;
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = RegisterActivity.class.getSimpleName();
     Boolean isListeningHeartRate = false;
+    SharedPreferences sharedpreferences;
 
-    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     BluetoothAdapter bluetoothAdapter;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
@@ -93,8 +95,11 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
 
-        mDeviceName = getIntent().getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = getIntent().getStringExtra(EXTRAS_DEVICE_ADDRESS);
+
+        sharedpreferences = getSharedPreferences(LoginActivity.my_shared_preferences, Context.MODE_PRIVATE);
+
+        mDeviceName = sharedpreferences.getString(DeviceScanActivity.EXTRAS_DEVICE_NAME, null);
+        mDeviceAddress = sharedpreferences.getString(DeviceScanActivity.EXTRAS_DEVICE_ADDRESS, null);
 
         btn_hitung = findViewById(R.id.btn_hitung_detak_jantung);
         btn_login = findViewById(R.id.btn_txtlogin);
@@ -111,6 +116,10 @@ public class RegisterActivity extends AppCompatActivity {
         txt_nomor_tujuan2 = findViewById(R.id.txt_nomor_tujuan_2);
         txt_nomor_tujuan3 = findViewById(R.id.txt_nomor_tujuan_3);
         txt_detak_jantung_normal = findViewById(R.id.txt_detak_jantung_normal);
+
+        txt_username.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(txt_username, InputMethodManager.SHOW_IMPLICIT);
 
         dp_tgl_lahir = findViewById(R.id.dp_tgl_lahir);
 
@@ -322,16 +331,14 @@ public class RegisterActivity extends AppCompatActivity {
 
                         Log.e("Successfully Register!", jObj.toString());
 
-                        Toast.makeText(getApplicationContext(),
-                                jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+                        showTopToast(jObj.getString(TAG_MESSAGE));
 
                         intent = new Intent(RegisterActivity.this, LoginActivity.class);
                         finish();
                         startActivity(intent);
 
                     } else {
-                        Toast.makeText(getApplicationContext(),
-                                jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+                        showTopToast(jObj.getString(TAG_MESSAGE));
                     }
                 } catch (JSONException e) {
                     // JSON error
@@ -388,11 +395,9 @@ public class RegisterActivity extends AppCompatActivity {
             pDialog.dismiss();
     }
 
-    @Override
-    public void onBackPressed() {
-        intent = new Intent(RegisterActivity.this, LoginActivity.class);
-        finish();
-        startActivity(intent);
+    public void showTopToast(String msg) {
+        Toast toast = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        toast.show();
     }
-
 }

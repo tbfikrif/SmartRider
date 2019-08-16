@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String TAG = MainActivity.class.getSimpleName();
     Boolean isListeningHeartRate = false;
 
-    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     BluetoothAdapter bluetoothAdapter;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private SensorManager sensorManager;
     private boolean color = false;
-    private boolean alarm_sound = true, alarm_vibrate = true, riding;
+    private boolean alarm_sound = true, alarm_vibrate = true, riding, drowse = false;
     private long lastUpdate;
     private String FROM_NUMBER = "", TO_NUMBER = "", MESSAGE = "";
     private String currentTime;
@@ -151,8 +149,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     void getBoundedDevice() {
-        mDeviceName = getIntent().getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = getIntent().getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        mDeviceName = sharedpreferences.getString(DeviceScanActivity.EXTRAS_DEVICE_NAME, null);
+        mDeviceAddress = sharedpreferences.getString(DeviceScanActivity.EXTRAS_DEVICE_ADDRESS, null);
     }
 
     void initializeObjects() {
@@ -201,10 +199,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(View v) {
                 startConnecting();
-                btnStartConnecting.setVisibility(View.GONE);
+                btnStartConnecting.setVisibility(View.INVISIBLE);
                 btnStopConnecting.setVisibility(View.VISIBLE);
-//                btnDemoAlarm.setVisibility(View.VISIBLE);
-//                btnDemoSendInformation.setVisibility(View.VISIBLE);
                 btnStopVibrate.setVisibility(View.VISIBLE);
                 riding = true;
 
@@ -212,29 +208,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 apiNomorTujuan.getNomorTujuan(MainActivity.this, TAG, username);
                 apiPengguna.getPengguna(MainActivity.this, TAG, username);
 
-                //txtHeartValue.setText(apiMengantuk.detak_jantung_normal);
                 normalHeartRate = apiMengantuk.detak_jantung_normal;
+                txtHeartValue.setText("80");
                 restHeartRate = (int) (normalHeartRate - (0.2 * normalHeartRate));
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                heartRateHandler.removeCallbacks(heartRateRunnable);
-                btnStartConnecting.setVisibility(View.VISIBLE);
-                btnStopConnecting.setVisibility(View.GONE);
-                btnDemoAlarm.setVisibility(View.GONE);
-                btnDemoSendInformation.setVisibility(View.GONE);
-                btnStopVibrate.setVisibility(View.GONE);
-                riding = false;
+                if (riding) {
+                    heartRateHandler.removeCallbacks(heartRateRunnable);
+                    btnStartConnecting.setVisibility(View.VISIBLE);
+                    btnStopConnecting.setVisibility(View.INVISIBLE);
+                    btnStopVibrate.setVisibility(View.INVISIBLE);
+                    riding = false;
+                    drowse = false;
+                }
             }
         });
         btnStopVibrate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopVibrate();
-                weakupAlarm.pause();
-                vibrator.cancel();
+                if (drowse) {
+                    stopVibrate();
+                    weakupAlarm.pause();
+                    vibrator.cancel();
+                    drowse = false;
+                }
             }
         });
         btnDemoAlarm.setOnClickListener(new View.OnClickListener() {
@@ -356,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            drowse = true;
                             turnOnAlarm();
                         }
                     }, 3000);
@@ -620,19 +621,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         if (riding) {
-            stopVibrate();
-            weakupAlarm.pause();
-            vibrator.cancel();
+            if (drowse) {
+                stopVibrate();
+                weakupAlarm.pause();
+                vibrator.cancel();
+                drowse = false;
+            }
 
             heartRateHandler.removeCallbacks(heartRateRunnable);
             btnStartConnecting.setVisibility(View.VISIBLE);
-            btnStopConnecting.setVisibility(View.GONE);
-            btnDemoAlarm.setVisibility(View.GONE);
-            btnDemoSendInformation.setVisibility(View.GONE);
-            btnStopVibrate.setVisibility(View.GONE);
+            btnStopConnecting.setVisibility(View.INVISIBLE);
+            btnStopVibrate.setVisibility(View.INVISIBLE);
             riding = false;
+        } else {
+            super.onBackPressed();
         }
     }
 

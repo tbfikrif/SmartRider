@@ -39,10 +39,14 @@
         <activity android:name=".activity.DeviceScanActivity" />
         <activity
             android:name=".activity.LoginActivity"
-            android:parentActivityName=".activity.DeviceScanActivity" />
+            android:launchMode="singleTop"/>
         <activity
             android:name=".activity.RegisterActivity"
-            android:parentActivityName=".activity.LoginActivity" />
+            android:parentActivityName=".activity.LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.RegisterActivity"/>
+        </activity>
         <activity android:name=".activity.MainActivity"
             android:launchMode="singleTop"/>
         <activity

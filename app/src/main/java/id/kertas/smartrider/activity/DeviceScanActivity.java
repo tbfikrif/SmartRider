@@ -6,9 +6,11 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +29,13 @@ import java.util.Set;
 import id.kertas.smartrider.R;
 
 public class DeviceScanActivity extends AppCompatActivity {
+    public static final String my_shared_preferences = "my_shared_preferences";
+
+    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+
+    private SharedPreferences sharedpreferences;
+
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mScanning;
@@ -65,6 +74,13 @@ public class DeviceScanActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        initializeEvent();
+    }
+
+    private void initializeEvent(){
+
+        sharedpreferences = getSharedPreferences(my_shared_preferences, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -120,6 +136,12 @@ public class DeviceScanActivity extends AppCompatActivity {
                 final BluetoothDevice device = mLeDeviceListAdapter.getDevice(i);
                 if (device == null) return;
                 final Intent intent = new Intent(DeviceScanActivity.this, LoginActivity.class);
+
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString(EXTRAS_DEVICE_NAME, device.getName());
+                editor.putString(EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                editor.apply();
+
                 intent.putExtra(LoginActivity.EXTRAS_DEVICE_NAME, device.getName());
                 intent.putExtra(LoginActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
                 intent.putExtra("device", device);
@@ -128,6 +150,7 @@ public class DeviceScanActivity extends AppCompatActivity {
                     mScanning = false;
                 }
                 startActivity(intent);
+                finish();
             }
         });
         scanLeDevice(true);

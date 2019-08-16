@@ -25,6 +25,6 @@
         <Preference
             android:title="Pengembang"
             android:icon="@drawable/ic_person"
-            android:summary="PEMBIMBING SKRIPSI\n- Eko Budi Setiawan, S.Kom., M.T.\n\nPENGUJI SKRIPSI\n- Dian Dharmayanti, S.T., M.Kom.\n\nPEMBUAT\n- 10115387 Tubagus Fikri Fatoni"/>
+            android:summary="PEMBIMBING SKRIPSI\n- Eko Budi Setiawan, S.Kom., M.T.\n\nPENGUJI SKRIPSI\n- Dian Dharmayanti, S.T., M.Kom.\n- Alif Finandhita, S.Kom., M.T.\n\nMAHASISWA SKRIPSI\n- 10115387 Tubagus Fikri Fatoni"/>
     </PreferenceCategory>
 </PreferenceScreen>
