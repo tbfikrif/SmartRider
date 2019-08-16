@@ -170,7 +170,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         username = getIntent().getStringExtra(TAG_USERNAME);
 
         txt_nama.setText(nama);
-        //txtHeartValue.setText(apiMengantuk.detak_jantung_normal);
 
         apiMengantuk.getMengantuk(this,TAG,username);
     }
@@ -212,6 +211,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 apiMengantuk.getMengantuk(MainActivity.this, TAG, username);
                 apiNomorTujuan.getNomorTujuan(MainActivity.this, TAG, username);
                 apiPengguna.getPengguna(MainActivity.this, TAG, username);
+
+                //txtHeartValue.setText(apiMengantuk.detak_jantung_normal);
+                normalHeartRate = apiMengantuk.detak_jantung_normal;
+                restHeartRate = (int) (normalHeartRate - (0.2 * normalHeartRate));
             }
         });
         btnStopConnecting.setOnClickListener(new View.OnClickListener() {
@@ -249,9 +252,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     void initializeValue() {
-        normalHeartRate = apiMengantuk.detak_jantung_normal;
         heartRateValue = 100;
-        restHeartRate = (int) (normalHeartRate - (0.2 * normalHeartRate));
         sdf = new SimpleDateFormat("HH:mm");
         currentTime = sdf.format(new Date());
         name = nama;
@@ -519,16 +520,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         txtZ.setText(String.format("%.2f", z) + " m/s2");
         //txtAcceleration.setText(String.format("%.4f", accelationSquareRoot) + " m/s2");
 
-        if (x > 8.0f){
+        if (x > 7.0f){
             txtAcceleration.setText("Miring Kiri");
-        } else if (x <-8.0f) {
+        } else if (x <- 7.0f) {
             txtAcceleration.setText("Miring Kanan");
         } else {
             txtAcceleration.setText("Normal");
             txtAcceleration.setTextColor(Color.BLUE);
         }
 
-        if (accelationSquareRoot >= 3)
+        if (accelationSquareRoot >= 5)
         {
             if (actualTime - lastUpdate < 200) {
                 return;
