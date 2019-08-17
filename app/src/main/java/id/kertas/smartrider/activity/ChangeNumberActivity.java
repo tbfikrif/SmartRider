@@ -24,10 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import id.kertas.smartrider.R;
+import id.kertas.smartrider.api.ApiNomorTujuan;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
 
 import static id.kertas.smartrider.activity.MainActivity.TAG_USERNAME;
+import static id.kertas.smartrider.api.ApiPengguna.riderData;
 
 public class ChangeNumberActivity extends AppCompatActivity {
 
@@ -63,14 +65,18 @@ public class ChangeNumberActivity extends AppCompatActivity {
         initializeObject();
         initializeComponent();
         initializeEvent();
+        initializeImplementation();
 
-        getNomorTujuan(username);
+        //getNomorTujuan(username);
     }
 
-    private void initializeObject(){
+    private void initializeObject() {
         sharedpreferences = getSharedPreferences(my_shared_preferences, Context.MODE_PRIVATE);
         session = sharedpreferences.getBoolean(session_status, false);
         username = sharedpreferences.getString(TAG_USERNAME, null);
+        nomor_tujuan1 = sharedpreferences.getString(ApiNomorTujuan.TAG_NOMOR_TUJUAN1, "");
+        nomor_tujuan2 = sharedpreferences.getString(ApiNomorTujuan.TAG_NOMOR_TUJUAN2, "");
+        nomor_tujuan3 = sharedpreferences.getString(ApiNomorTujuan.TAG_NOMOR_TUJUAN3, "");
     }
 
     private void initializeComponent() {
@@ -80,7 +86,7 @@ public class ChangeNumberActivity extends AppCompatActivity {
         btn_change_number = findViewById(R.id.btn_change_number);
     }
 
-    private void initializeEvent(){
+    private void initializeEvent() {
         btn_change_number.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,74 +99,80 @@ public class ChangeNumberActivity extends AppCompatActivity {
         });
     }
 
-    public void getNomorTujuan(final String username) {
-        pDialog = new ProgressDialog(this);
-        pDialog.setCancelable(false);
-        pDialog.setMessage("Logging in ...");
-        showDialog();
-
-        String url = Server.URL + "getnomortujuan.php";
-        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                Log.e(TAG, "Check Response: " + response);
-                hideDialog();
-
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    success = jObj.getInt(TAG_SUCCESS);
-
-                    // Check for error node in json
-                    if (success == 1) {
-                        nomor_tujuan1 = jObj.getString(TAG_NOMOR_TUJUAN1);
-                        nomor_tujuan2 = jObj.getString(TAG_NOMOR_TUJUAN2);
-                        nomor_tujuan3 = jObj.getString(TAG_NOMOR_TUJUAN3);
-
-                        Log.d("Successfully Show!", jObj.toString());
-
-                        txt_nomor_tujuan1.setText(nomor_tujuan1);
-                        txt_nomor_tujuan2.setText(nomor_tujuan2);
-                        txt_nomor_tujuan3.setText(nomor_tujuan3);
-
-                    } else {
-                        Toast.makeText(getApplicationContext(),
-                                jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
-
-                    }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-
-                hideDialog();
-
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-
-                return params;
-            }
-
-        };
-
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_json_obj);
+    private void initializeImplementation() {
+        txt_nomor_tujuan1.setText(nomor_tujuan1);
+        txt_nomor_tujuan2.setText(nomor_tujuan2);
+        txt_nomor_tujuan3.setText(nomor_tujuan3);
     }
+
+//    public void getNomorTujuan(final String username) {
+//        pDialog = new ProgressDialog(this);
+//        pDialog.setCancelable(false);
+//        pDialog.setMessage("Logging in ...");
+//        showDialog();
+//
+//        String url = Server.URL + "getnomortujuan.php";
+//        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+//
+//            @Override
+//            public void onResponse(String response) {
+//                Log.e(TAG, "Check Response: " + response);
+//                hideDialog();
+//
+//                try {
+//                    JSONObject jObj = new JSONObject(response);
+//                    success = jObj.getInt(TAG_SUCCESS);
+//
+//                    // Check for error node in json
+//                    if (success == 1) {
+//                        nomor_tujuan1 = jObj.getString(TAG_NOMOR_TUJUAN1);
+//                        nomor_tujuan2 = jObj.getString(TAG_NOMOR_TUJUAN2);
+//                        nomor_tujuan3 = jObj.getString(TAG_NOMOR_TUJUAN3);
+//
+//                        Log.d("Successfully Show!", jObj.toString());
+//
+//                        txt_nomor_tujuan1.setText(nomor_tujuan1);
+//                        txt_nomor_tujuan2.setText(nomor_tujuan2);
+//                        txt_nomor_tujuan3.setText(nomor_tujuan3);
+//
+//                    } else {
+//                        Toast.makeText(getApplicationContext(),
+//                                jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+//
+//                    }
+//                } catch (JSONException e) {
+//                    // JSON error
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//        }, new Response.ErrorListener() {
+//
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Log.e(TAG, "Error: " + error.getMessage());
+//                Toast.makeText(getApplicationContext(),
+//                        error.getMessage(), Toast.LENGTH_LONG).show();
+//
+//                hideDialog();
+//
+//            }
+//        }) {
+//
+//            @Override
+//            protected Map<String, String> getParams() {
+//                // Posting parameters to login url
+//                Map<String, String> params = new HashMap<String, String>();
+//                params.put("username", username);
+//
+//                return params;
+//            }
+//
+//        };
+//
+//        // Adding request to request queue
+//        AppController.getInstance().addToRequestQueue(strReq, tag_json_obj);
+//    }
 
     private void setNomorTujuan(final String username, final String nomor_tujuan1, final String nomor_tujuan2, final String nomor_tujuan3) {
         pDialog = new ProgressDialog(this);
@@ -183,6 +195,12 @@ public class ChangeNumberActivity extends AppCompatActivity {
                     // Check for error node in json
                     if (success == 1) {
                         Log.d("Successfully Change!", jObj.toString());
+
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putString(TAG_NOMOR_TUJUAN1, nomor_tujuan1);
+                        editor.putString(TAG_NOMOR_TUJUAN2, nomor_tujuan2);
+                        editor.putString(TAG_NOMOR_TUJUAN3, nomor_tujuan3);
+                        editor.apply();
 
                         Toast.makeText(getApplicationContext(), jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
                         finish();

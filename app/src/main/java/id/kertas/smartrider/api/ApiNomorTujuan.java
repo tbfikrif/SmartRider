@@ -2,6 +2,7 @@ package id.kertas.smartrider.api;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,6 +20,8 @@ import java.util.Map;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
 
+import static id.kertas.smartrider.api.ApiPengguna.riderData;
+
 public class ApiNomorTujuan {
 
     private static final String TAG_SUCCESS = "success";
@@ -35,7 +38,7 @@ public class ApiNomorTujuan {
 
     public String nomor_tujuan1, nomor_tujuan2, nomor_tujuan3;
 
-    public void getNomorTujuan(final Context context, final String TAG, final String username) {
+    public void getNomorTujuan(final Context context, final String TAG, final SharedPreferences sharedPreferences, final String username) {
         pDialog = new ProgressDialog(context);
         pDialog.setCancelable(false);
         pDialog.setMessage("Logging in ...");
@@ -58,6 +61,13 @@ public class ApiNomorTujuan {
                         nomor_tujuan1 = jObj.getString(TAG_NOMOR_TUJUAN1);
                         nomor_tujuan2 = jObj.getString(TAG_NOMOR_TUJUAN2);
                         nomor_tujuan3 = jObj.getString(TAG_NOMOR_TUJUAN3);
+
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(riderData, true);
+                        editor.putString(TAG_NOMOR_TUJUAN1, nomor_tujuan1);
+                        editor.putString(TAG_NOMOR_TUJUAN2, nomor_tujuan2);
+                        editor.putString(TAG_NOMOR_TUJUAN3, nomor_tujuan3);
+                        editor.apply();
 
                         Log.d("Successfully Show!", jObj.toString());
 

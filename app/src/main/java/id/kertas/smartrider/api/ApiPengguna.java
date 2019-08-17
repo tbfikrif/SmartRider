@@ -2,6 +2,7 @@ package id.kertas.smartrider.api;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,8 +21,18 @@ import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
 
 public class ApiPengguna {
+    public static final String riderData = "rider_data";
+
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
+
+    public static final String TAG_USERNAME = "username";
+    public static final String TAG_PASSWORD = "password";
+    public static final String TAG_NAMA = "nama";
+    public static final String TAG_EMAIL = "email";
+    public static final String TAG_TGL_LAHIR = "tgl_lahir";
+    public static final String TAG_ALAMAT = "alamat";
+    public final static String TAG_NOMOR_TLP = "nomor_tlp";
 
     private ProgressDialog pDialog;
 
@@ -30,7 +41,7 @@ public class ApiPengguna {
 
     private int success;
 
-    public void getPengguna(final Context context, final String TAG, final String username) {
+    public void getPengguna(final Context context, final String TAG, final SharedPreferences sharedPreferences, final String username) {
         pDialog = new ProgressDialog(context);
         pDialog.setCancelable(false);
         pDialog.setMessage("Getting ...");
@@ -56,6 +67,18 @@ public class ApiPengguna {
                         tgl_lahir = jObj.getString("tgl_lahir");
                         alamat = jObj.getString("alamat");
                         nomor_tlp = jObj.getString("nomor_tlp");
+
+                        // menyimpan data ke session
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(riderData, true);
+                        editor.putString(TAG_USERNAME, username);
+                        editor.putString(TAG_PASSWORD, password);
+                        editor.putString(TAG_NAMA, nama);
+                        editor.putString(TAG_EMAIL, email);
+                        editor.putString(TAG_TGL_LAHIR, tgl_lahir);
+                        editor.putString(TAG_ALAMAT, alamat);
+                        editor.putString(TAG_NOMOR_TLP, nomor_tlp);
+                        editor.apply();
 
                         Log.d("Successfully Get!", jObj.toString());
 

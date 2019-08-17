@@ -2,6 +2,7 @@ package id.kertas.smartrider.api;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,11 +20,14 @@ import java.util.Map;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
 
+import static id.kertas.smartrider.api.ApiPengguna.riderData;
+
 public class ApiMengantuk {
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
-    private static final String TAG_JUMLAH_KANTUK ="jumlah_kantuk";
-    private static final String TAG_DETAK_JANTUNG_NORMAL ="detak_jantung_normal";
+
+    public static final String TAG_JUMLAH_KANTUK ="jumlah_kantuk";
+    public static final String TAG_DETAK_JANTUNG_NORMAL ="detak_jantung_normal";
 
     private ProgressDialog pDialog;
 
@@ -32,7 +36,7 @@ public class ApiMengantuk {
 
     private int success;
 
-    public void getMengantuk(final Context context, final String TAG, final String username) {
+    public void getMengantuk(final Context context, final String TAG, final SharedPreferences sharedPreferences, final String username) {
         pDialog = new ProgressDialog(context);
         pDialog.setCancelable(false);
         pDialog.setMessage("Getting ...");
@@ -54,6 +58,12 @@ public class ApiMengantuk {
                     if (success == 1) {
                         detak_jantung_normal = jObj.getInt(TAG_DETAK_JANTUNG_NORMAL);
                         jumlah_kantuk = jObj.getInt(TAG_JUMLAH_KANTUK);
+
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(riderData, true);
+                        editor.putInt(TAG_DETAK_JANTUNG_NORMAL, detak_jantung_normal);
+                        editor.putInt(TAG_JUMLAH_KANTUK, jumlah_kantuk);
+                        editor.apply();
 
                         Log.d("Successfully Get!", jObj.toString());
 

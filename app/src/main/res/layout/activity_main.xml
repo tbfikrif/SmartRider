@@ -326,7 +326,7 @@
             android:fontFamily="@font/righteousregular"
             android:paddingHorizontal="10dp"
             android:text="@string/mulai_berkendara"
-            android:textColor="@drawable/btn_txt_blue_white"
+            android:textColor="@drawable/btn_txt_yellow_white"
             android:visibility="visible" />
 
     </LinearLayout>

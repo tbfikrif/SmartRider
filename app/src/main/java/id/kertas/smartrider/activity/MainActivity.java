@@ -62,6 +62,10 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final String TAG_NAMA = "nama";
+    public static final String TAG_USERNAME = "username";
+
     Boolean isListeningHeartRate = false;
 
     BluetoothAdapter bluetoothAdapter;
@@ -83,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private SensorManager sensorManager;
     private boolean color = false;
-    private boolean alarm_sound = true, alarm_vibrate = true, riding, drowse = false;
+    private boolean alarm_sound = true, alarm_vibrate = true, riding, drowse = false, accident = false;
     private long lastUpdate;
     private String FROM_NUMBER = "", TO_NUMBER = "", MESSAGE = "";
     private String currentTime;
@@ -96,9 +100,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     String nama, username;
     SharedPreferences sharedpreferences;
-
-    public static final String TAG_NAMA = "nama";
-    public static final String TAG_USERNAME = "username";
+    Boolean isDataSave = false;
 
     private ApiNomorTujuan apiNomorTujuan;
     private ApiKecelakaan apiKecelakaan;
@@ -136,9 +138,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else if (item.getItemId() == R.id.help) {
             SharedPreferences.Editor editor = sharedpreferences.edit();
             editor.putBoolean(LoginActivity.session_status, false);
+            editor.putBoolean(apiPengguna.riderData, false);
             editor.putString(TAG_NAMA, null);
             editor.putString(TAG_USERNAME, null);
-            editor.commit();
+            editor.apply();
 
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             finish();
@@ -154,6 +157,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     void initializeObjects() {
+        sharedpreferences = getSharedPreferences(LoginActivity.my_shared_preferences, Context.MODE_PRIVATE);
+        isDataSave = sharedpreferences.getBoolean(ApiPengguna.riderData, false);
+
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         weakupAlarm = MediaPlayer.create(this, R.raw.fire_alarm_sound);
 
@@ -162,14 +168,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         client = LocationServices.getFusedLocationProviderClient(this);
 
-        sharedpreferences = getSharedPreferences(LoginActivity.my_shared_preferences, Context.MODE_PRIVATE);
-
         nama = getIntent().getStringExtra(TAG_NAMA);
         username = getIntent().getStringExtra(TAG_USERNAME);
 
         txt_nama.setText(nama);
-
-        apiMengantuk.getMengantuk(this,TAG,username);
     }
 
     void initilaizeComponents() {
@@ -195,6 +197,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     void initializeEvents() {
+        if (!isDataSave) {
+            apiMengantuk.getMengantuk(MainActivity.this, TAG, sharedpreferences, username);
+            apiNomorTujuan.getNomorTujuan(MainActivity.this, TAG, sharedpreferences, username);
+            apiPengguna.getPengguna(MainActivity.this, TAG, sharedpreferences, username);
+        } else {
+            txtHeartValue.setText(String.valueOf(sharedpreferences.getInt(ApiMengantuk.TAG_DETAK_JANTUNG_NORMAL, 80)));
+        }
+
         btnStartConnecting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,12 +214,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 btnStopVibrate.setVisibility(View.VISIBLE);
                 riding = true;
 
-                apiMengantuk.getMengantuk(MainActivity.this, TAG, username);
-                apiNomorTujuan.getNomorTujuan(MainActivity.this, TAG, username);
-                apiPengguna.getPengguna(MainActivity.this, TAG, username);
-
-                normalHeartRate = apiMengantuk.detak_jantung_normal;
-                txtHeartValue.setText("80");
+                //showLongToast(sharedpreferences.getString(ApiNomorTujuan.TAG_NOMOR_TUJUAN1, "Nomor"));
+                normalHeartRate = sharedpreferences.getInt(ApiMengantuk.TAG_DETAK_JANTUNG_NORMAL, 80);
+                heartRateValue = normalHeartRate;
+                txtHeartValue.setText(String.valueOf(normalHeartRate));
                 restHeartRate = (int) (normalHeartRate - (0.2 * normalHeartRate));
             }
         });
@@ -217,12 +225,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(View v) {
                 if (riding) {
+                    if (drowse) {
+                        stopVibrate();
+                        weakupAlarm.pause();
+                        vibrator.cancel();
+                        drowse = false;
+                    }
                     heartRateHandler.removeCallbacks(heartRateRunnable);
                     btnStartConnecting.setVisibility(View.VISIBLE);
                     btnStopConnecting.setVisibility(View.INVISIBLE);
                     btnStopVibrate.setVisibility(View.INVISIBLE);
                     riding = false;
                     drowse = false;
+                    accident = false;
                 }
             }
         });
@@ -256,11 +271,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sdf = new SimpleDateFormat("HH:mm");
         currentTime = sdf.format(new Date());
         name = nama;
-        number = "089650561515";
+        number = "0896XXXXXXXX";
         FROM_NUMBER = "LetsRide";
         TO_NUMBER = "6281931390150";
-        MESSAGE = name + " mengalami kecelakaan\n" +
-                "Kontak : " + number + "\n" +
+        MESSAGE = name + " mengalami kecelakaan silakan hubung nomor " + number + " untuk memastikan\n" +
                 "Waktu : " + currentTime + "\n" +
                 "Lokasi : " + link + "\n|";
         getLastLocation();
@@ -278,21 +292,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             weakupAlarm.start();
         }
         if (alarm_vibrate) {
-            vibrator=(Vibrator)getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
 
             vibrator.vibrate(2000);
         }
         btnStopVibrate.setVisibility(View.VISIBLE);
 
-        int jumlah_kantuk = apiMengantuk.jumlah_kantuk + 1;
-        apiMengantuk.setMengantuk(this,TAG,username, jumlah_kantuk);
+        int jumlah_kantuk = sharedpreferences.getInt(ApiMengantuk.TAG_JUMLAH_KANTUK, 0) + 1;
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putInt(ApiMengantuk.TAG_JUMLAH_KANTUK, jumlah_kantuk);
+        editor.apply();
+
+        apiMengantuk.setMengantuk(this, TAG, username, jumlah_kantuk);
     }
 
     private void sendInformation() {
         currentTime = sdf.format(new Date());
         getLastLocation();
-        MESSAGE = name + " mengalami kecelakaan\n" +
-                "Kontak : " + apiPengguna.nomor_tlp + "\n" +
+        MESSAGE = name + " mengalami kecelakaan silakan hubung nomor " + apiPengguna.nomor_tlp + " untuk memastikan\n" +
                 "Waktu : " + currentTime + "\n" +
                 "Lokasi : " + link;
 
@@ -311,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentDateTime = sdf.format(new Date());
-        apiKecelakaan.setKecelakaan(this,TAG,username,longtitude,latitude,link,currentDateTime);
+        apiKecelakaan.setKecelakaan(this, TAG, username, longtitude, latitude, link, currentDateTime);
     }
 
     void getLastLocation() {
@@ -521,30 +538,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         txtZ.setText(String.format("%.2f", z) + " m/s2");
         //txtAcceleration.setText(String.format("%.4f", accelationSquareRoot) + " m/s2");
 
-        if (x > 7.0f){
+        if (x > 7.0f) {
             txtAcceleration.setText("Miring Kiri");
-        } else if (x <- 7.0f) {
+        } else if (x < -7.0f) {
             txtAcceleration.setText("Miring Kanan");
         } else {
             txtAcceleration.setText("Normal");
             txtAcceleration.setTextColor(Color.BLUE);
         }
 
-        if (accelationSquareRoot >= 5)
-        {
-            if (actualTime - lastUpdate < 200) {
-                return;
-            }
-            lastUpdate = actualTime;
+        if (riding && !accident) {
+            if (accelationSquareRoot >= 4) {
+                accident = true;
+                if (actualTime - lastUpdate < 200) {
+                    return;
+                }
+                lastUpdate = actualTime;
 
-            if (x > 8.0f){
-                txtAcceleration.setText("Miring Kiri");
-                txtAcceleration.setTextColor(Color.RED);
-                sendInformation();
-            } else if (x <-8.0f) {
-                txtAcceleration.setText("Miring Kanan");
-                txtAcceleration.setTextColor(Color.RED);
-                sendInformation();
+                if (x > 7.0f) {
+                    txtAcceleration.setText("Miring Kiri");
+                    txtAcceleration.setTextColor(Color.RED);
+                    sendInformation();
+                } else if (x < -7.0f) {
+                    txtAcceleration.setText("Miring Kanan");
+                    txtAcceleration.setTextColor(Color.RED);
+                    sendInformation();
+                }
             }
         }
     }

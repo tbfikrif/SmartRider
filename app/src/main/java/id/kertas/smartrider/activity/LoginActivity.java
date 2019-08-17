@@ -194,7 +194,7 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putBoolean(session_status, true);
                         editor.putString(TAG_NAMA, nama);
                         editor.putString(TAG_USERNAME, username);
-                        editor.commit();
+                        editor.apply();
 
                         // Memanggil device_scan activity
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
