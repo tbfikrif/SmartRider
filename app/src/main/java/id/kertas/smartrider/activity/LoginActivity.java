@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
@@ -27,6 +28,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
@@ -57,8 +59,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public final static String TAG_USERNAME = "username";
     public final static String TAG_NAMA = "nama";
-    public final static String TAG_NOMOR_TLP = "nomor_tlp";
-    public final static String TAG_NOMOR_TUJUAN = "nomor_tujuan1";
 
     String tag_json_obj = "json_obj_req";
 
@@ -89,8 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                     && conMgr.getActiveNetworkInfo().isAvailable()
                     && conMgr.getActiveNetworkInfo().isConnected()) {
             } else {
-                Toast.makeText(getApplicationContext(), "No Internet Connection",
-                        Toast.LENGTH_LONG).show();
+                showTopToastError("No Internet Connection");
             }
         }
     }
@@ -135,15 +134,15 @@ public class LoginActivity extends AppCompatActivity {
                             && conMgr.getActiveNetworkInfo().isConnected()) {
                         checkLogin(username, password);
                     } else {
-                        Toast.makeText(getApplicationContext() ,"No Internet Connection", Toast.LENGTH_LONG).show();
+                        showTopToastError("No Internet Connection");
                     }
                 } else if (!(username.trim().length() > 0)){
-                    Toast.makeText(getApplicationContext() ,"Username tidak boleh kosong", Toast.LENGTH_LONG).show();
+                    showTopToastError("Username tidak boleh kosong");
                     txt_username.requestFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(txt_username, InputMethodManager.SHOW_IMPLICIT);
                 } else if (!(password.trim().length() > 0)){
-                    Toast.makeText(getApplicationContext() ,"Password tidak boleh kosong", Toast.LENGTH_LONG).show();
+                    showTopToastError("Password tidak boleh kosong");
                     txt_password.requestFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(txt_password, InputMethodManager.SHOW_IMPLICIT);
@@ -187,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         Log.d("Successfully Login!", jObj.toString());
 
-                        Toast.makeText(getApplicationContext(), jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+                        showTopToastSuccess(jObj.getString(TAG_MESSAGE));
 
                         // menyimpan login ke session
                         SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -205,8 +204,7 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                         startActivity(intent);
                     } else {
-                        Toast.makeText(getApplicationContext(),
-                                jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+                        showTopToastError(jObj.getString(TAG_MESSAGE));
 
                     }
                 } catch (JSONException e) {
@@ -220,8 +218,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                showTopToastError(error.getMessage());
 
                 hideDialog();
 
@@ -252,5 +249,17 @@ public class LoginActivity extends AppCompatActivity {
     private void hideDialog() {
         if (pDialog.isShowing())
             pDialog.dismiss();
+    }
+
+    public void showTopToastError(String msg) {
+        Toast toasty = Toasty.error(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
+    }
+
+    public void showTopToastSuccess(String msg) {
+        Toast toasty = Toasty.success(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
     }
 }

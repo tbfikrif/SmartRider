@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
 
@@ -52,10 +53,10 @@ public class ApiKecelakaan {
                     if (success == 1) {
                         Log.d("Successfully Record!", jObj.toString());
 
-                        Toast.makeText(context, jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+                        Toasty.success(context, jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG,true).show();
 
                     } else {
-                        Toast.makeText(context, jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+                        Toasty.warning(context, jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG,true).show();
 
                     }
                 } catch (JSONException e) {

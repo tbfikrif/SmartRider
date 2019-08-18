@@ -6,8 +6,8 @@ android {
         applicationId 'id.kertas.smartrider'
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 7
-        versionName "1.1.5"
+        versionCode 8
+        versionName "1.2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -41,5 +41,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.9'
     //ProgressBar Custom
     implementation 'com.github.ybq:Android-SpinKit:1.2.0'
+    //Toasty
+    implementation 'com.github.GrenderG:Toasty:1.4.2'
 }
 apply plugin: 'com.google.gms.google-services'

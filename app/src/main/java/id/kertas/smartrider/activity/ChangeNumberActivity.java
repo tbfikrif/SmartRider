@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,13 +24,13 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.api.ApiNomorTujuan;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.Server;
 
 import static id.kertas.smartrider.activity.MainActivity.TAG_USERNAME;
-import static id.kertas.smartrider.api.ApiPengguna.riderData;
 
 public class ChangeNumberActivity extends AppCompatActivity {
 
@@ -66,8 +67,6 @@ public class ChangeNumberActivity extends AppCompatActivity {
         initializeComponent();
         initializeEvent();
         initializeImplementation();
-
-        //getNomorTujuan(username);
     }
 
     private void initializeObject() {
@@ -202,12 +201,11 @@ public class ChangeNumberActivity extends AppCompatActivity {
                         editor.putString(TAG_NOMOR_TUJUAN3, nomor_tujuan3);
                         editor.apply();
 
-                        Toast.makeText(getApplicationContext(), jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+                        showTopToastSuccess(jObj.getString(TAG_MESSAGE));
                         finish();
 
                     } else {
-                        Toast.makeText(getApplicationContext(),
-                                jObj.getString(TAG_MESSAGE), Toast.LENGTH_LONG).show();
+                        showTopToastError(jObj.getString(TAG_MESSAGE));
 
                     }
                 } catch (JSONException e) {
@@ -221,8 +219,7 @@ public class ChangeNumberActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                showTopToastError(error.getMessage());
 
                 hideDialog();
 
@@ -255,5 +252,17 @@ public class ChangeNumberActivity extends AppCompatActivity {
     private void hideDialog() {
         if (pDialog.isShowing())
             pDialog.dismiss();
+    }
+
+    public void showTopToastError(String msg) {
+        Toast toasty = Toasty.error(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
+    }
+
+    public void showTopToastSuccess(String msg) {
+        Toast toasty = Toasty.success(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
     }
 }

@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import es.dmoral.toasty.Toasty;
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.api.ApiClient;
 import id.kertas.smartrider.api.ApiInterface;
@@ -214,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 btnStopVibrate.setVisibility(View.VISIBLE);
                 riding = true;
 
-                //showLongToast(sharedpreferences.getString(ApiNomorTujuan.TAG_NOMOR_TUJUAN1, "Nomor"));
                 normalHeartRate = sharedpreferences.getInt(ApiMengantuk.TAG_DETAK_JANTUNG_NORMAL, 80);
                 heartRateValue = normalHeartRate;
                 txtHeartValue.setText(String.valueOf(normalHeartRate));
@@ -368,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startScanHeartRate();
                 heartRateHandler.postDelayed(this, 20000);
                 if (heartRateValue <= restHeartRate) {
-                    showShortToast("Mengantuk");
+                    showTopToastWarning("Mengantuk");
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -416,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .getCharacteristic(CustomBluetoothProfile.AlertNotification.alertCharacteristic);
         bchar.setValue(new byte[]{2});
         if (!bluetoothGatt.writeCharacteristic(bchar)) {
-            Toast.makeText(this, "Failed start vibrate", Toast.LENGTH_SHORT).show();
+            showTopToastWarning("Failed start vibrate");
         }
     }
 
@@ -425,7 +426,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .getCharacteristic(CustomBluetoothProfile.AlertNotification.alertCharacteristic);
         bchar.setValue(new byte[]{0});
         if (!bluetoothGatt.writeCharacteristic(bchar)) {
-            Toast.makeText(this, "Failed stop vibrate", Toast.LENGTH_SHORT).show();
+            showTopToastWarning("Failed stop vibrate");
         }
     }
 
@@ -602,17 +603,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onFailure(Call<MessageResponse> call, Throwable t) {
                 Log.e(TAG, t.getLocalizedMessage());
-                showShortToast("Gagal Mengirim Pesan");
+                showTopToastError("Gagal Mengirim Pesan");
             }
         });
     }
 
     private boolean validateAllFields() {
         if (!Patterns.PHONE.matcher(TO_NUMBER).matches()) {
-            showShortToast("Tolong masukan nomor yang benar");
+            showTopToastError("Tolong masukan nomor yang benar");
             return false;
         } else if (MESSAGE.length() == 0) {
-            showShortToast("Pesan Kosong");
+            showTopToastError("Pesan Kosong");
             return false;
         } else {
             return true;
@@ -658,12 +659,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    public void showShortToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    public void showTopToastWarning(String msg) {
+        Toast toasty = Toasty.warning(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
     }
 
-    public void showLongToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    public void showTopToastError(String msg) {
+        Toast toasty = Toasty.error(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
+    }
+
+    public void showTopToastSuccess(String msg) {
+        Toast toasty = Toasty.success(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
     }
 
     @Override

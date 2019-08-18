@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Handler;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,6 +32,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
+import es.dmoral.toasty.Toasty;
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.app.AppController;
 import id.kertas.smartrider.util.CustomBluetoothProfile;
@@ -61,6 +63,8 @@ public class RegisterActivity extends AppCompatActivity {
     TextView btn_login;
     EditText txt_username, txt_password, txt_confirm_password, txt_nama, txt_email, txt_alamat,
             txt_nomor_tlp, txt_nomor_tujuan1, txt_nomor_tujuan2, txt_nomor_tujuan3;
+    TextInputLayout inputLayoutUsername, inputLayoutPassword, inputLayoutPassswordConfirmation, inputLayoutNama, inputLayoutEmail,
+            inputLayoutAlamat, inputLayoutNomorTlp, inputLayoutNomorTujuan1, inputLayoutNomorTujuan2, inputLayoutNomorTujuan3;
     DatePicker dp_tgl_lahir;
     TextView txt_detak_jantung_normal;
     Intent intent;
@@ -90,8 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
                     && conMgr.getActiveNetworkInfo().isAvailable()
                     && conMgr.getActiveNetworkInfo().isConnected()) {
             } else {
-                Toast.makeText(getApplicationContext(), "No Internet Connection",
-                        Toast.LENGTH_LONG).show();
+                showTopToastError("No Internet Connection");
             }
         }
 
@@ -116,6 +119,17 @@ public class RegisterActivity extends AppCompatActivity {
         txt_nomor_tujuan2 = findViewById(R.id.txt_nomor_tujuan_2);
         txt_nomor_tujuan3 = findViewById(R.id.txt_nomor_tujuan_3);
         txt_detak_jantung_normal = findViewById(R.id.txt_detak_jantung_normal);
+
+        inputLayoutUsername = findViewById(R.id.input_layout_username);
+        inputLayoutPassword = findViewById(R.id.input_layout_password);
+        inputLayoutPassswordConfirmation = findViewById(R.id.input_layout_password_confirmation);
+        inputLayoutNama = findViewById(R.id.input_layout_nama);
+        inputLayoutEmail = findViewById(R.id.input_layout_email);
+        inputLayoutAlamat = findViewById(R.id.input_layout_alamat);
+        inputLayoutNomorTlp = findViewById(R.id.input_layout_nomor_tlp);
+        inputLayoutNomorTujuan1 = findViewById(R.id.input_layout_nomor_tujuan1);
+        inputLayoutNomorTujuan2 = findViewById(R.id.input_layout_nomor_tujuan2);
+        inputLayoutNomorTujuan3 = findViewById(R.id.input_layout_nomor_tujuan3);
 
         txt_username.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -147,6 +161,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                Boolean isValid = true;
                 String username = txt_username.getText().toString();
                 String password = txt_password.getText().toString();
                 String confirm_password = txt_confirm_password.getText().toString();
@@ -160,16 +175,103 @@ public class RegisterActivity extends AppCompatActivity {
                 String detak_jantung_normal = txt_detak_jantung_normal.getText().toString();
                 String tgl_lahir = dp_tgl_lahir.getYear() + "-" + dp_tgl_lahir.getDayOfMonth() + "-" + dp_tgl_lahir.getMonth();
 
+                if (username.isEmpty()) {
+                    inputLayoutUsername.setError("Username tidak boleh kosong");
+                    isValid = false;
+                } else inputLayoutUsername.setErrorEnabled(false);
+
+                if (password.isEmpty()) {
+                    inputLayoutPassword.setError("Password tidak boleh kosong");
+                    isValid = false;
+                } else inputLayoutPassword.setErrorEnabled(false);
+
+                if (confirm_password.isEmpty()) {
+                    inputLayoutPassswordConfirmation.setError("Password Konfirmasi tidak sama");
+                    isValid = false;
+                } else inputLayoutPassword.setErrorEnabled(false);
+
+                if (nama.isEmpty()) {
+                    inputLayoutNama.setError("Nama tidak boleh kosong");
+                    isValid = false;
+                } else inputLayoutPassword.setErrorEnabled(false);
+
+                if (email.isEmpty()) {
+                    inputLayoutEmail.setError("Email tidak boleh kosong");
+                    isValid = false;
+                } else inputLayoutPassword.setErrorEnabled(false);
+
+                if (alamat.isEmpty()) {
+                    inputLayoutAlamat.setError("Alamat tidak boleh kosong");
+                    isValid = false;
+                } else inputLayoutPassword.setErrorEnabled(false);
+
+                if (nomor_tlp.isEmpty()) {
+                    inputLayoutNomorTlp.setError("Nomor Telepon tidak boleh kosong");
+                    isValid = false;
+                } else inputLayoutPassword.setErrorEnabled(false);
+
+                if (nomor_tujuan1.isEmpty()) {
+                    inputLayoutNomorTujuan1.setError("Nomor Tujuan 1 tidak boleh kosong");
+                    isValid = false;
+                } else inputLayoutPassword.setErrorEnabled(false);
+
+                if (tgl_lahir.isEmpty()) {
+                    dp_tgl_lahir.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(dp_tgl_lahir, InputMethodManager.SHOW_IMPLICIT);
+                    isValid = false;
+                }
+
+                if (username.isEmpty()) {
+                    txt_username.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_username, InputMethodManager.SHOW_IMPLICIT);
+                } else if (password.isEmpty()) {
+                    txt_password.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_password, InputMethodManager.SHOW_IMPLICIT);
+                } else if (confirm_password.isEmpty()) {
+                    txt_confirm_password.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_confirm_password, InputMethodManager.SHOW_IMPLICIT);
+                } else if (nama.isEmpty()) {
+                    txt_nama.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_nama, InputMethodManager.SHOW_IMPLICIT);
+                } else if (email.isEmpty()) {
+                    txt_email.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_email, InputMethodManager.SHOW_IMPLICIT);
+                } else if (alamat.isEmpty()) {
+                    txt_alamat.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_alamat, InputMethodManager.SHOW_IMPLICIT);
+                } else if (nomor_tlp.isEmpty()) {
+                    txt_nomor_tlp.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_nomor_tlp, InputMethodManager.SHOW_IMPLICIT);
+                } else if (nomor_tujuan1.isEmpty()) {
+                    txt_nomor_tujuan1.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(txt_nomor_tujuan1, InputMethodManager.SHOW_IMPLICIT);
+                } else if (tgl_lahir.isEmpty()) {
+                    dp_tgl_lahir.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(dp_tgl_lahir, InputMethodManager.SHOW_IMPLICIT);
+                }
+
                 if (detak_jantung_normal.contains("Memindai"))
                     detak_jantung_normal = "80";
 
-                if (conMgr.getActiveNetworkInfo() != null
-                        && conMgr.getActiveNetworkInfo().isAvailable()
-                        && conMgr.getActiveNetworkInfo().isConnected()) {
-                    checkRegister(username, password, confirm_password, nama, email, alamat, nomor_tlp, nomor_tujuan1, nomor_tujuan2, nomor_tujuan3,
-                            detak_jantung_normal, tgl_lahir);
-                } else {
-                    Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+                if (isValid) {
+                    if (conMgr.getActiveNetworkInfo() != null
+                            && conMgr.getActiveNetworkInfo().isAvailable()
+                            && conMgr.getActiveNetworkInfo().isConnected()) {
+                        checkRegister(username, password, confirm_password, nama, email, alamat, nomor_tlp, nomor_tujuan1, nomor_tujuan2, nomor_tujuan3,
+                                detak_jantung_normal, tgl_lahir);
+                    } else {
+                        showTopToastError("No Internet Connection");
+                    }
                 }
             }
         });
@@ -331,14 +433,14 @@ public class RegisterActivity extends AppCompatActivity {
 
                         Log.e("Successfully Register!", jObj.toString());
 
-                        showTopToast(jObj.getString(TAG_MESSAGE));
+                        showTopToastSuccess(jObj.getString(TAG_MESSAGE));
 
                         intent = new Intent(RegisterActivity.this, LoginActivity.class);
                         finish();
                         startActivity(intent);
 
                     } else {
-                        showTopToast(jObj.getString(TAG_MESSAGE));
+                        showTopToastError(jObj.getString(TAG_MESSAGE));
                     }
                 } catch (JSONException e) {
                     // JSON error
@@ -351,8 +453,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                showTopToastError(error.getMessage());
 
                 hideDialog();
 
@@ -395,9 +496,15 @@ public class RegisterActivity extends AppCompatActivity {
             pDialog.dismiss();
     }
 
-    public void showTopToast(String msg) {
-        Toast toast = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
-        toast.show();
+    public void showTopToastError(String msg) {
+        Toast toasty = Toasty.error(getApplicationContext(), msg, Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
+    }
+
+    public void showTopToastSuccess(String msg) {
+        Toast toasty = Toasty.success(getApplicationContext(), msg, Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 100);
+        toasty.show();
     }
 }
