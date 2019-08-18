@@ -43,5 +43,7 @@ dependencies {
     implementation 'com.github.ybq:Android-SpinKit:1.2.0'
     //Toasty
     implementation 'com.github.GrenderG:Toasty:1.4.2'
+    //ColorDialog
+    implementation 'com.github.andyxialm:ColorDialog:1.0.0'
 }
 apply plugin: 'com.google.gms.google-services'

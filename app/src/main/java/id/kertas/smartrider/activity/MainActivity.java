@@ -44,6 +44,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import cn.refactor.lib.colordialog.ColorDialog;
+import cn.refactor.lib.colordialog.PromptDialog;
 import es.dmoral.toasty.Toasty;
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.api.ApiClient;
@@ -641,39 +643,51 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onBackPressed() {
-        if (riding) {
-            if (drowse) {
-                stopVibrate();
-                weakupAlarm.pause();
-                vibrator.cancel();
-                drowse = false;
-            }
-
+        if (drowse) {
+            stopVibrate();
+            weakupAlarm.pause();
+            vibrator.cancel();
+            drowse = false;
+        } else if (riding) {
             heartRateHandler.removeCallbacks(heartRateRunnable);
             btnStartConnecting.setVisibility(View.VISIBLE);
             btnStopConnecting.setVisibility(View.INVISIBLE);
             btnStopVibrate.setVisibility(View.INVISIBLE);
             riding = false;
         } else {
-            super.onBackPressed();
+            ColorDialog dialog = new ColorDialog(this);
+            dialog.setTitle("Keluar");
+            dialog.setAnimationEnable(true);
+            dialog.setContentText("Kamu yakin ingin berhenti menggunakan aplikasi ini?");
+            dialog.setPositiveListener("Ya", new ColorDialog.OnPositiveListener() {
+                @Override
+                public void onClick(ColorDialog dialog) {
+                    MainActivity.super.onBackPressed();
+                }
+            }).setNegativeListener("Tidak", new ColorDialog.OnNegativeListener() {
+                @Override
+                public void onClick(ColorDialog dialog) {
+                    dialog.dismiss();
+                }
+            }).show();
         }
     }
 
     public void showTopToastWarning(String msg) {
-        Toast toasty = Toasty.warning(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
-        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        Toast toasty = Toasty.warning(getApplicationContext(), msg, Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 100);
         toasty.show();
     }
 
     public void showTopToastError(String msg) {
-        Toast toasty = Toasty.error(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
-        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        Toast toasty = Toasty.error(getApplicationContext(), msg, Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 100);
         toasty.show();
     }
 
     public void showTopToastSuccess(String msg) {
-        Toast toasty = Toasty.success(getApplicationContext(), msg,Toasty.LENGTH_LONG, true);
-        toasty.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+        Toast toasty = Toasty.success(getApplicationContext(), msg, Toasty.LENGTH_LONG, true);
+        toasty.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 100);
         toasty.show();
     }
 

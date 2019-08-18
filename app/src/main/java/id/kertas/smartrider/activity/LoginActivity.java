@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.refactor.lib.colordialog.ColorDialog;
 import es.dmoral.toasty.Toasty;
 import id.kertas.smartrider.R;
 import id.kertas.smartrider.app.AppController;
@@ -239,6 +240,25 @@ public class LoginActivity extends AppCompatActivity {
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_json_obj);
+    }
+
+    @Override
+    public void onBackPressed() {
+        ColorDialog dialog = new ColorDialog(this);
+        dialog.setTitle("Keluar");
+        dialog.setAnimationEnable(true);
+        dialog.setContentText("Kamu yakin ingin berhenti menggunakan aplikasi ini?");
+        dialog.setPositiveListener("Ya", new ColorDialog.OnPositiveListener() {
+            @Override
+            public void onClick(ColorDialog dialog) {
+                LoginActivity.super.onBackPressed();
+            }
+        }).setNegativeListener("Tidak", new ColorDialog.OnNegativeListener() {
+            @Override
+            public void onClick(ColorDialog dialog) {
+                dialog.dismiss();
+            }
+        }).show();
     }
 
     private void showDialog() {
