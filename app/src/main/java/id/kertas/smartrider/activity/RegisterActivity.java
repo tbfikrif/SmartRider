@@ -1,5 +1,6 @@
 package id.kertas.smartrider.activity;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,6 +12,8 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.support.design.widget.TextInputLayout;
@@ -24,6 +27,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +46,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,12 +67,14 @@ public class RegisterActivity extends AppCompatActivity {
     Button btn_hitung, btn_register;
     TextView btn_login;
     EditText txt_username, txt_password, txt_confirm_password, txt_nama, txt_email, txt_alamat,
-            txt_nomor_tlp, txt_nomor_tujuan1, txt_nomor_tujuan2, txt_nomor_tujuan3;
+            txt_nomor_tlp, txt_nomor_tujuan1, txt_nomor_tujuan2, txt_nomor_tujuan3, txt_tgl_lahir;
     TextInputLayout inputLayoutUsername, inputLayoutPassword, inputLayoutPassswordConfirmation, inputLayoutNama, inputLayoutEmail,
             inputLayoutAlamat, inputLayoutNomorTlp, inputLayoutNomorTujuan1, inputLayoutNomorTujuan2, inputLayoutNomorTujuan3;
-    DatePicker dp_tgl_lahir;
     TextView txt_detak_jantung_normal;
     Intent intent;
+    ImageView img_date;
+
+    DatePickerDialog.OnDateSetListener dateSetListener;
 
     int success;
     ConnectivityManager conMgr;
@@ -119,6 +126,7 @@ public class RegisterActivity extends AppCompatActivity {
         txt_nomor_tujuan2 = findViewById(R.id.txt_nomor_tujuan_2);
         txt_nomor_tujuan3 = findViewById(R.id.txt_nomor_tujuan_3);
         txt_detak_jantung_normal = findViewById(R.id.txt_detak_jantung_normal);
+        txt_tgl_lahir = findViewById(R.id.txt_tgl_lahir);
 
         inputLayoutUsername = findViewById(R.id.input_layout_username);
         inputLayoutPassword = findViewById(R.id.input_layout_password);
@@ -131,13 +139,39 @@ public class RegisterActivity extends AppCompatActivity {
         inputLayoutNomorTujuan2 = findViewById(R.id.input_layout_nomor_tujuan2);
         inputLayoutNomorTujuan3 = findViewById(R.id.input_layout_nomor_tujuan3);
 
+        img_date = findViewById(R.id.img_date);
+
         txt_username.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(txt_username, InputMethodManager.SHOW_IMPLICIT);
 
-        dp_tgl_lahir = findViewById(R.id.dp_tgl_lahir);
-
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        img_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar calendar = Calendar.getInstance();
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog dialog = new DatePickerDialog(
+                        RegisterActivity.this,
+                        dateSetListener,
+                        year, month, day);
+                dialog.show();
+            }
+        });
+
+        dateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int day) {
+                month = month + 1;
+                Log.d(TAG, "onDateSet: yyyy/mm/dd: " + year + "/" + month + "/" + day);
+                String date = year + "/" + month + "/" + day;
+                txt_tgl_lahir.setText(date);
+            }
+        };
 
         btn_hitung.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,7 +207,8 @@ public class RegisterActivity extends AppCompatActivity {
                 String nomor_tujuan2 = txt_nomor_tujuan2.getText().toString();
                 String nomor_tujuan3 = txt_nomor_tujuan3.getText().toString();
                 String detak_jantung_normal = txt_detak_jantung_normal.getText().toString();
-                String tgl_lahir = dp_tgl_lahir.getYear() + "-" + dp_tgl_lahir.getDayOfMonth() + "-" + dp_tgl_lahir.getMonth();
+//                String tgl_lahir = dp_tgl_lahir.getYear() + "-" + dp_tgl_lahir.getDayOfMonth() + "-" + dp_tgl_lahir.getMonth();
+                String tgl_lahir = txt_tgl_lahir.getText().toString();
 
                 if (username.isEmpty()) {
                     inputLayoutUsername.setError("Username tidak boleh kosong");
@@ -216,9 +251,9 @@ public class RegisterActivity extends AppCompatActivity {
                 } else inputLayoutPassword.setErrorEnabled(false);
 
                 if (tgl_lahir.isEmpty()) {
-                    dp_tgl_lahir.requestFocus();
+                    txt_tgl_lahir.requestFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(dp_tgl_lahir, InputMethodManager.SHOW_IMPLICIT);
+                    imm.showSoftInput(txt_tgl_lahir, InputMethodManager.SHOW_IMPLICIT);
                     isValid = false;
                 }
 
@@ -255,9 +290,9 @@ public class RegisterActivity extends AppCompatActivity {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(txt_nomor_tujuan1, InputMethodManager.SHOW_IMPLICIT);
                 } else if (tgl_lahir.isEmpty()) {
-                    dp_tgl_lahir.requestFocus();
+                    txt_tgl_lahir.requestFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(dp_tgl_lahir, InputMethodManager.SHOW_IMPLICIT);
+                    imm.showSoftInput(txt_tgl_lahir, InputMethodManager.SHOW_IMPLICIT);
                 }
 
                 if (detak_jantung_normal.contains("Memindai"))

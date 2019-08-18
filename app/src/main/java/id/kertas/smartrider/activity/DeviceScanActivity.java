@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +46,7 @@ public class DeviceScanActivity extends AppCompatActivity {
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
     ListView listView;
+    Button btn_skip;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class DeviceScanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_device_scan);
 
         listView = findViewById(R.id.listView);
+        btn_skip = findViewById(R.id.btn_skip);
 
         mHandler = new Handler();
 
@@ -81,6 +84,29 @@ public class DeviceScanActivity extends AppCompatActivity {
     private void initializeEvent(){
 
         sharedpreferences = getSharedPreferences(my_shared_preferences, Context.MODE_PRIVATE);
+
+        btn_skip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String deviceName = "MI Band 3";
+                String deviceAddress = "E2:E3:10:39:6A:FB";
+                final Intent intent = new Intent(DeviceScanActivity.this, LoginActivity.class);
+
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString(EXTRAS_DEVICE_NAME, deviceName);
+                editor.putString(EXTRAS_DEVICE_ADDRESS, deviceAddress);
+                editor.apply();
+
+                intent.putExtra(LoginActivity.EXTRAS_DEVICE_NAME, deviceName);
+                intent.putExtra(LoginActivity.EXTRAS_DEVICE_ADDRESS, deviceAddress);
+                if (mScanning) {
+                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    mScanning = false;
+                }
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     @Override

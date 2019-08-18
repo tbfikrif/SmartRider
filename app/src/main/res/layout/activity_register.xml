@@ -138,7 +138,7 @@
                         android:layout_marginEnd="10dp"
                         android:layout_marginBottom="10dp"
                         android:fontFamily="@font/righteousregular"
-                        android:text="80"
+                        android:text="85"
                         android:textAlignment="center"
                         android:textSize="32sp" />
 
@@ -197,23 +197,36 @@
                             android:textColorHint="#fff" />
                     </android.support.design.widget.TextInputLayout>
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:fontFamily="@font/righteousregular"
-                        android:text="Tanggal Lahir :"
-                        android:textSize="20sp" />
+                        android:layout_margin="10dp">
 
-                    <id.kertas.smartrider.util.CustomDatePicker
-                        android:id="@+id/dp_tgl_lahir"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
-                        android:calendarViewShown="false"
-                        android:datePickerMode="spinner" />
+                        <EditText
+                            android:id="@+id/txt_tgl_lahir"
+                            android:layout_width="100dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="9"
+                            android:layout_gravity="center"
+                            android:background="@drawable/btn_daftar"
+                            android:fontFamily="@font/righteousregular"
+                            android:hint="Tanggal Lahir"
+                            android:inputType="date"
+                            android:paddingLeft="20dp"
+                            android:singleLine="true"
+                            android:textColor="#fff"
+                            android:textColorHint="#fff"
+                            android:clickable="true"
+                            android:focusable="true"/>
+                        <ImageView
+                            android:id="@+id/img_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:src="@drawable/ic_date"
+                            android:clickable="true"
+                            android:focusable="true"/>
+                    </LinearLayout>
 
                     <android.support.design.widget.TextInputLayout
                         android:id="@+id/input_layout_alamat"
